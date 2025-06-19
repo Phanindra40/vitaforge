@@ -29,6 +29,7 @@ const AppRoutes = () => (
     <Route path="/dashboard" element={<Dashboard />} />
     <Route path="/sign-in/*" element={<SignInPage />} />
     <Route path="*" element={<RedirectToSignIn />} />
+     <Route path="*" element={<NotFound />} /> {/* Fallback */}
   </Routes>
 );
 
