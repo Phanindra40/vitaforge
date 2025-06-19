@@ -1,5 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import {
   ClerkProvider,
   SignedIn,
@@ -14,6 +20,23 @@ import SignInPage from './auth/signin';
 import Dashboard from './components/Dashboard';
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+// 🟢 Custom wrapper to connect Clerk with Router
+const ClerkWithRouter = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  return (
+    <ClerkProvider
+      publishableKey={clerkPublishableKey}
+      navigate={(to) => navigate(to)}
+    >
+      <Layout>
+        <AppRoutes />
+      </Layout>
+    </ClerkProvider>
+  );
+};
 
 // Layout component to conditionally hide Header on /sign-in
 const Layout = ({ children }) => {
@@ -33,8 +56,6 @@ const AppRoutes = () => (
     <Route path="/" element={<Home />} />
     <Route path="/features" element={<Features />} />
     <Route path="/sign-in/*" element={<SignInPage />} />
-
-    {/* Protected route for dashboard */}
     <Route
       path="/dashboard"
       element={
@@ -43,21 +64,15 @@ const AppRoutes = () => (
         </SignedIn>
       }
     />
-
-    {/* Redirect unknown routes to home */}
     <Route path="*" element={<Home />} />
   </Routes>
 );
 
 const App = () => {
   return (
-    <ClerkProvider publishableKey={clerkPublishableKey}>
-      <Router>
-        <Layout>
-          <AppRoutes />
-        </Layout>
-      </Router>
-    </ClerkProvider>
+    <Router>
+      <ClerkWithRouter />
+    </Router>
   );
 };
 
