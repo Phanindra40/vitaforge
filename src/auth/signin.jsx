@@ -1,11 +1,19 @@
-// src/auth/signin.jsx
-import { SignIn } from "@clerk/clerk-react";
+import { SignIn, useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Header from "../components/Header";
 import Home from "../components/Home";
 
 const SignInPage = () => {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+
+  // 🔄 Redirect after successful sign-in
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate("/dashboard");
+    }
+  }, [isSignedIn, navigate]);
 
   const handleClose = () => {
     navigate("/");
@@ -23,7 +31,6 @@ const SignInPage = () => {
       {/* Centered Clerk SignIn */}
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4">
         <div className="relative bg-white/95 backdrop-blur-lg shadow-xl rounded-xl w-full max-w-sm p-4 sm:p-6">
-          
           {/* Close Button */}
           <button
             onClick={handleClose}
@@ -33,8 +40,8 @@ const SignInPage = () => {
             ×
           </button>
 
-          {/* Clerk SignIn Only */}
-          <SignIn path="/sign-in" routing="path" redirectUrl="/dashboard" />
+          {/* Clerk SignIn Without redirectUrl */}
+          <SignIn path="/sign-in" routing="path" />
         </div>
       </div>
     </div>
