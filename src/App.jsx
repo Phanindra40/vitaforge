@@ -36,14 +36,14 @@ const App = () => {
   return (
     <ClerkProvider publishableKey={clerkPublishableKey}>
       <Router>
-        
+        <Layout>
           <SignedIn>
             <AppRoutes />
           </SignedIn>
           <SignedOut>
             <AppRoutes />
           </SignedOut>
-        
+        </Layout>
       </Router>
     </ClerkProvider>
   );
