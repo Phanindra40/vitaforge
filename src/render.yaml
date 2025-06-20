@@ -1,0 +1,9 @@
+services:
+  - type: static
+    name: vitaforge
+    buildCommand: npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        src: "/.*"
+        dest: "/index.html"
