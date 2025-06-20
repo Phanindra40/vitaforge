@@ -14,7 +14,14 @@ const SignUpPage = () => {
     }
   }, [isSignedIn, isLoaded, navigate]);
 
-  if (!loaded) return null; // or return a loading spinner
+  if (!loaded) {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <span className="text-gray-600 animate-pulse">Loading...</span>
+    </div>
+  );
+}
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
