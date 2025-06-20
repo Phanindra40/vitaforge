@@ -41,7 +41,7 @@ const SignInPage = () => {
           </button>
 
           {/* Clerk SignIn - Added signUpUrl to ensure signup shows */}
-          <SignIn path="/sign-in" routing="path" signUpUrl="/sign-in" />
+          <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" />
         </div>
       </div>
     </div>
