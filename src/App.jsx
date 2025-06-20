@@ -4,26 +4,45 @@ import {
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from 'react-router-dom';
+
 import {
   ClerkProvider,
   SignedIn,
   SignedOut,
-  RedirectToSignIn,
+  SignIn,
+  SignUp,
 } from '@clerk/clerk-react';
 
 import Header from './components/Header';
 import Home from './components/Home';
 import Features from './components/Features';
 import Dashboard from './components/Dashboard';
-import SignInPage from './auth/SignInPage';
-import SignUpPage from './auth/SignUpPage';
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
+const ClerkWithRouter = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  return (
+    <ClerkProvider
+      publishableKey={clerkPublishableKey}
+      navigate={(to) => navigate(to)}
+    >
+      <Layout>
+        <AppRoutes />
+      </Layout>
+    </ClerkProvider>
+  );
+};
+
 const Layout = ({ children }) => {
   const location = useLocation();
-  const isAuthPage = ['/sign-in', '/sign-up'].includes(location.pathname);
+  const isAuthPage =
+    location.pathname.startsWith('/sign-in') ||
+    location.pathname.startsWith('/sign-up');
 
   return (
     <>
@@ -37,6 +56,28 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Home />} />
     <Route path="/features" element={<Features />} />
+
+    {/* Clerk Sign In */}
+    <Route
+      path="/sign-in/*"
+      element={
+        <div className="flex justify-center items-center min-h-screen bg-white">
+          <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" />
+        </div>
+      }
+    />
+
+    {/* Clerk Sign Up */}
+    <Route
+      path="/sign-up/*"
+      element={
+        <div className="flex justify-center items-center min-h-screen bg-white">
+          <SignUp path="/sign-up" routing="path" signInUrl="/sign-in" />
+        </div>
+      }
+    />
+
+    {/* Protected Dashboard */}
     <Route
       path="/dashboard"
       element={
@@ -45,25 +86,18 @@ const AppRoutes = () => (
         </SignedIn>
       }
     />
-    <Route path="/sign-in" element={<SignInPage />} />
-    <Route path="/sign-up" element={<SignUpPage />} />
-    <Route path="*" element={<RedirectToSignIn />} />
+
+    {/* Fallback route */}
+    <Route path="*" element={<Home />} />
   </Routes>
 );
 
-const App = () => (
-  <ClerkProvider publishableKey={clerkPublishableKey}>
+const App = () => {
+  return (
     <Router>
-      <Layout>
-        <SignedIn>
-          <AppRoutes />
-        </SignedIn>
-        <SignedOut>
-          <AppRoutes />
-        </SignedOut>
-      </Layout>
+      <ClerkWithRouter />
     </Router>
-  </ClerkProvider>
-);
+  );
+};
 
 export default App;
