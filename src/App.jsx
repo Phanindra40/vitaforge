@@ -81,16 +81,11 @@ const AppRoutes = () => (
     <Route
       path="/dashboard"
       element={
-    <>
-      <SignedIn>
-        <Dashboard />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-    </>
-  }
-
+        <SignedIn>
+          <Dashboard />
+        </SignedIn>
+        
+      }
     />
 
     {/* Fallback route */}
