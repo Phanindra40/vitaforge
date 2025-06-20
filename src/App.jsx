@@ -72,7 +72,7 @@ const AppRoutes = () => (
       path="/sign-up/*"
       element={
         <div className="flex justify-center items-center min-h-screen bg-white">
-          <SignUp path="/sign-up" routing="path" signInUrl="/sign-in" />
+          <SignUp path="/sign-up/*" routing="path" signInUrl="/sign-in" />
         </div>
       }
     />
@@ -81,10 +81,16 @@ const AppRoutes = () => (
     <Route
       path="/dashboard"
       element={
-        <SignedIn>
-          <Dashboard />
-        </SignedIn>
-      }
+    <>
+      <SignedIn>
+        <Dashboard />
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
+  }
+
     />
 
     {/* Fallback route */}
