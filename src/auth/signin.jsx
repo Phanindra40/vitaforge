@@ -40,8 +40,8 @@ const SignInPage = () => {
             ×
           </button>
 
-          {/* Clerk SignIn Without redirectUrl */}
-          <SignIn path="/sign-in" routing="path" />
+          {/* Clerk SignIn - Added signUpUrl to ensure signup shows */}
+          <SignIn path="/sign-in" routing="path" signUpUrl="/sign-in" />
         </div>
       </div>
     </div>

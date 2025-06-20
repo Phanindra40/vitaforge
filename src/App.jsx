@@ -6,22 +6,22 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
+
 import {
   ClerkProvider,
   SignedIn,
   SignedOut,
-  RedirectToSignIn,
+  SignIn,
+  SignUp,
 } from '@clerk/clerk-react';
 
 import Header from './components/Header';
 import Home from './components/Home';
 import Features from './components/Features';
-import SignInPage from './auth/signin';
 import Dashboard from './components/Dashboard';
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-// 🟢 Custom wrapper to connect Clerk with Router
 const ClerkWithRouter = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,10 +38,11 @@ const ClerkWithRouter = () => {
   );
 };
 
-// Layout component to conditionally hide Header on /sign-in
 const Layout = ({ children }) => {
   const location = useLocation();
-  const isAuthPage = location.pathname.startsWith('/sign-in');
+  const isAuthPage =
+    location.pathname.startsWith('/sign-in') ||
+    location.pathname.startsWith('/sign-up');
 
   return (
     <>
@@ -55,7 +56,28 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Home />} />
     <Route path="/features" element={<Features />} />
-    <Route path="/sign-in/*" element={<SignInPage />} />
+
+    {/* Clerk Sign In */}
+    <Route
+      path="/sign-in/*"
+      element={
+        <div className="flex justify-center items-center min-h-screen bg-white">
+          <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" />
+        </div>
+      }
+    />
+
+    {/* Clerk Sign Up */}
+    <Route
+      path="/sign-up/*"
+      element={
+        <div className="flex justify-center items-center min-h-screen bg-white">
+          <SignUp path="/sign-up" routing="path" signInUrl="/sign-in" />
+        </div>
+      }
+    />
+
+    {/* Protected Dashboard */}
     <Route
       path="/dashboard"
       element={
@@ -64,6 +86,8 @@ const AppRoutes = () => (
         </SignedIn>
       }
     />
+
+    {/* Fallback route */}
     <Route path="*" element={<Home />} />
   </Routes>
 );
