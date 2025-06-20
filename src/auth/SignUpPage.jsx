@@ -1,10 +1,11 @@
 // src/auth/SignUpPage.jsx
-import { SignUp, useAuth } from "@clerk/clerk-react";
+import { SignUp, useAuth, useClerk } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SignUpPage = () => {
-  const { isSignedIn, isLoaded } = useAuth(); // 🔁 include isLoaded
+  const { isSignedIn, isLoaded } = useAuth();
+  const { loaded } = useClerk(); // ✅ Clerk script readiness
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -12,6 +13,8 @@ const SignUpPage = () => {
       navigate("/dashboard");
     }
   }, [isSignedIn, isLoaded, navigate]);
+
+  if (!loaded) return null; // or return a loading spinner
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
