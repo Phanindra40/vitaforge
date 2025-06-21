@@ -69,6 +69,8 @@ const AppRoutes = () => (
 
     {/* Clerk Sign Up */}
     
+<SignUp />;
+
 
     {/* Protected Dashboard */}
     <Route
