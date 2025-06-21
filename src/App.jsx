@@ -19,6 +19,7 @@ import Header from './components/Header';
 import Home from './components/Home';
 import Features from './components/Features';
 import Dashboard from './components/Dashboard';
+import SignUpPage from './auth/SignUpPage';
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
