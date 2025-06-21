@@ -69,14 +69,8 @@ const AppRoutes = () => (
 
     {/* Clerk Sign Up */}
     
-<Route
-  path="/sign-up/*"
-  element={
-    <div className="flex justify-center items-center min-h-screen bg-white">
-      <SignUp path="/sign-up" routing="path" signInUrl="/sign-in" />
-    </div>
-  }
-/>
+<Route path="/sign-up/*" element={<SignUpPage />} />
+
 
 
 
