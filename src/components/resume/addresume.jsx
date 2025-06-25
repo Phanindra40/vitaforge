@@ -1,5 +1,5 @@
 // /src/pages/addresume/AddResume.jsx
-import ResumeForm from "./ResumeForm";
+import ResumeForm from "./resumeform";
 
 const AddResume = () => {
   return (
