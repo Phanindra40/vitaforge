@@ -1,0 +1,170 @@
+import ErrorBoundary from "./ErrorBoundary";
+
+const Preview = ({ personalInfo, summary, experiences, education, projects, skills }) => {
+  return (
+    <ErrorBoundary>
+      <div className="bg-white shadow-xl rounded-2xl p-6 border border-gray-300">
+
+        {/* Header */}
+        <div className="bg-red-500 text-white rounded-t-xl px-6 py-4">
+          <h1 className="text-3xl font-bold">
+            {personalInfo.FullName || personalInfo.fullName || "Your Name"}
+          </h1>
+          <p className="text-sm">
+            {(personalInfo.Email || personalInfo.email || "email@example.com")} |{" "}
+            {(personalInfo.Phone || personalInfo.phone || "123-456-7890")}
+          </p>
+          {(personalInfo.LinkedIn || personalInfo.linkedIn || personalInfo.GitHub || personalInfo.gitHub) && (
+            <p className="text-sm mt-1">
+              {(personalInfo.LinkedIn || personalInfo.linkedIn) && (
+                <span className="mr-2">
+                  <a
+                    href={personalInfo.LinkedIn || personalInfo.linkedIn}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    LinkedIn
+                  </a>
+                </span>
+              )}
+              {(personalInfo.GitHub || personalInfo.gitHub) && (
+                <span>
+                  <a
+                    href={personalInfo.GitHub || personalInfo.gitHub}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    GitHub
+                  </a>
+                </span>
+              )}
+            </p>
+          )}
+
+          {/* Custom Fields */}
+          {Array.isArray(personalInfo.customFields) && personalInfo.customFields.length > 0 && (
+            <div className="mt-2">
+              {personalInfo.customFields.map((field, idx) =>
+                field.label && field.value ? (
+                  <div key={idx} className="text-sm">
+                    <span className="font-semibold">{field.label}:</span> {field.value}
+                  </div>
+                ) : null
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Summary */}
+        {summary && summary.length > 0 && (
+          <section className="mt-4">
+            <h2 className="text-xl font-semibold text-gray-700">Summary</h2>
+            {Array.isArray(summary) ? (
+              <ul className="list-disc pl-5 text-gray-600">
+                {summary.map((point, index) => (
+                  <li key={index}>{point}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600">{summary}</p>
+            )}
+          </section>
+        )}
+
+        {/* Experience */}
+        {experiences && experiences.length > 0 ? (
+          <section className="mt-4">
+            <h2 className="text-xl font-semibold text-gray-700">Experience</h2>
+            {experiences.map((item, index) => (
+              <div key={index} className="mb-2">
+                <h3 className="text-md font-semibold text-purple-700">
+                  {item.jobTitle || item.role || item.name}
+                  {item.company && ` at ${item.company}`}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {(item.startDate || item.start) || ""} - {(item.endDate || item.end) || ""}
+                </p>
+                <p className="text-gray-600">{item.description || item.desc}</p>
+                {(item.technologiesUsed || item.technologies || item.tech) && (
+                  <p className="text-sm italic text-gray-500">
+                    Tech: {item.technologiesUsed || item.technologies || item.tech}
+                  </p>
+                )}
+              </div>
+            ))}
+          </section>
+        ) : (
+          <p className="text-gray-500 italic mt-2">No experiences added yet.</p>
+        )}
+
+        {/* Education */}
+        {education && education.length > 0 ? (
+          <section className="mt-4">
+            <h2 className="text-xl font-semibold text-gray-700">Education</h2>
+            {education.map((edu, index) => (
+              <div key={index} className="mb-2">
+                <h3 className="text-md font-semibold">{edu.institute}</h3>
+                <p className="text-sm text-gray-600">{edu.startDate} – {edu.endDate}</p>
+                <p className="text-sm text-gray-700">{edu.degree}</p>
+                {edu.technologies && (
+                  <p className="text-sm italic text-gray-500">
+                    Technologies: {edu.technologies}
+                  </p>
+                )}
+                {edu.description && <p className="text-sm">{edu.description}</p>}
+              </div>
+            ))}
+          </section>
+        ) : (
+          <p className="text-gray-500 italic mt-2">No education added yet.</p>
+        )}
+
+        {/* Projects */}
+        {projects && projects.length > 0 ? (
+          <section className="mt-4">
+            <h2 className="text-xl font-semibold text-gray-700">Projects</h2>
+            {projects.map((proj, index) => (
+              <div key={index} className="mb-2">
+                <h3 className="text-md font-semibold text-blue-700">{proj.name}</h3>
+                <p className="text-sm text-gray-600">
+                  {proj.startDate} – {proj.endDate}
+                </p>
+                <p className="text-gray-700">{proj.description}</p>
+                {proj.technologies && (
+                  <p className="text-sm italic text-gray-500">
+                    Technologies: {proj.technologies}
+                  </p>
+                )}
+              </div>
+            ))}
+          </section>
+        ) : (
+          <p className="text-gray-500 italic mt-2">No projects added yet.</p>
+        )}
+
+        {/* ✅ Skills Section */}
+        {skills && skills.length > 0 ? (
+          <section className="mt-4">
+            <h2 className="text-xl font-semibold text-gray-700">Skills</h2>
+            <ul className="flex flex-wrap gap-2 mt-2">
+              {skills.map((skill, index) => (
+                <li
+                  key={index}
+                  className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm"
+                >
+                  {typeof skill === "string" ? skill : skill.name || "Skill"}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : (
+          <p className="text-gray-500 italic mt-2">No skills added yet.</p>
+        )}
+      </div>
+    </ErrorBoundary>
+  );
+};
+
+export default Preview;
