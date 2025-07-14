@@ -5,13 +5,14 @@ import axios from "axios";
 import PersonalInfoSection from "./sections/PersonalInfoSection";
 import SummarySection from "./sections/SummarySection";
 import ExperienceSection from "./sections/ExperienceSection";
-import ProjectsSection from "./sections/ProjectsSection"; // ✅ NEW
+import ProjectsSection from "./sections/ProjectsSection";
 import EducationSection from "./sections/EducationSection";
 import SkillsSection from "./sections/SkillsSection";
 import Preview from "./Preview";
 
 const ResumeForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [resumeId, setResumeId] = useState(null); // For update after creation
 
   const [personalInfo, setPersonalInfo] = useState({
     FullName: "",
@@ -24,35 +25,47 @@ const ResumeForm = () => {
 
   const [summary, setSummary] = useState("");
   const [experiences, setExperiences] = useState([]);
-  const [projects, setProjects] = useState([]); // ✅ NEW
+  const [projects, setProjects] = useState([]);
   const [education, setEducation] = useState([]);
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Save all data including projects
-  const saveToStrapi = async () => {
+  const handleFinalSubmit = async () => {
     const payload = {
       personalInfo,
       summary,
       experiences,
-      projects, // ✅ include projects
+      projects,
       education,
       skills,
     };
+
     try {
-      const res = await axios.post("http://localhost:1337/api/resumes", {
-        data: payload,
-      });
-      console.log("✅ Saved to Strapi:", res.data);
+      const url = resumeId
+        ? `https://backend-vitaforge.onrender.com/api/resumes/${resumeId}`
+        : `https://backend-vitaforge.onrender.com/api/resumes`;
+
+      const response = resumeId
+        ? await axios.put(url, { data: payload })
+        : await axios.post(url, { data: payload });
+
+      console.log("✅ Resume saved:", response.data);
+
+      if (!resumeId) {
+        setResumeId(response.data.data.id);
+      }
+
+      alert("✅ Resume saved successfully!");
     } catch (err) {
-      console.error("❌ Error saving to Strapi:", err);
+      console.error("❌ Error saving resume:", err);
+      alert("❌ Failed to save resume. Please try again.");
     }
   };
 
   const handleGeminiRequest = async (prompt) => {
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:1337/api/gemini/generate", { prompt });
+      const response = await axios.post("https://backend-vitaforge.onrender.com/api/gemini/generate", { prompt });
       const geminiText = response.data.response || response.data.text || "";
       setSummary(geminiText);
     } catch (error) {
@@ -66,13 +79,12 @@ const ResumeForm = () => {
   const handleGeminiSuggest = async (section, index, entry) => {
     try {
       setLoading(true);
-
       const prompt =
         section === "project"
           ? `Write a concise, impressive resume project description for a project titled "${entry.title}". Technologies used: ${entry.technologiesUsed}. Duration: ${entry.duration}.`
           : `Write a concise and impactful resume description for the role of ${entry.jobTitle} at ${entry.company}, using technologies: ${entry.technologiesUsed}`;
 
-      const response = await axios.post("http://localhost:1337/api/gemini/generate", { prompt });
+      const response = await axios.post("https://backend-vitaforge.onrender.com/api/gemini/generate", { prompt });
 
       const generatedText = response.data.text || response.data.response || "Generated description not available.";
 
@@ -93,7 +105,6 @@ const ResumeForm = () => {
     }
   };
 
-  // ✅ Step Definitions
   const steps = [
     {
       title: "Personal Info",
@@ -132,7 +143,7 @@ const ResumeForm = () => {
       ),
     },
     {
-      title: "Projects", // ✅ NEW
+      title: "Projects",
       component: (
         <ProjectsSection
           data={projects}
@@ -145,28 +156,29 @@ const ResumeForm = () => {
       ),
     },
     {
-  title: "Education",
-  component: (
-    <EducationSection
-      data={education}
-      onChange={(data) => setEducation(data)}
-      onBack={() => setCurrentStep((prev) => prev - 1)}
-      onSave={(data) => setEducation(data)}
-      onNext={() => setCurrentStep((prev) => prev + 1)}
-    />
-  ),
-},
+      title: "Education",
+      component: (
+        <EducationSection
+          data={education}
+          onChange={(data) => setEducation(data)}
+          onSave={(data) => setEducation(data)}
+          onNext={() => setCurrentStep((prev) => prev + 1)}
+          onBack={() => setCurrentStep((prev) => prev - 1)}
+        />
+      ),
+    },
     {
-  title: "Skills",
-  component: (
-    <SkillsSection
-      data={skills}
-      onChange={(data) => setSkills(data)}
-      onBack={() => setCurrentStep((prev) => prev - 1)}
-      onSave={(data) => setSkills(data)}
-    />
-  ),
-},
+      title: "Skills",
+      component: (
+        <SkillsSection
+          data={skills}
+          onChange={(data) => setSkills(data)}
+          onSave={(data) => setSkills(data)}
+          onBack={() => setCurrentStep((prev) => prev - 1)}
+          onNext={handleFinalSubmit} // ✅ Final step triggers save
+        />
+      ),
+    },
   ];
 
   const progressPercentage = ((currentStep + 1) / steps.length) * 100;
@@ -194,7 +206,7 @@ const ResumeForm = () => {
           personalInfo={personalInfo}
           summary={summary}
           experiences={experiences}
-          projects={projects} // ✅ Pass to preview
+          projects={projects}
           education={education}
           skills={skills}
         />
