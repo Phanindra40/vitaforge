@@ -9,3 +9,8 @@
   animation: blink 1s step-start infinite;
 }
 
+@media print {
+  button {
+    display: none !important;
+  }
+}
