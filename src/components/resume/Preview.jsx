@@ -27,15 +27,16 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
       {/* Resume Content */}
       <div
         ref={resumeRef}
-        className="bg-white shadow-2xl rounded-2xl p-8 border border-blue-100 max-w-[800px] mx-auto print:shadow-none print:rounded-none print:border-0 print:p-0 print:max-w-full"
+        className="bg-white shadow-2xl rounded-2xl p-8 border border-blue-100 max-w-[800px] mx-auto print:shadow-none print:rounded-none print:border-0 print:p-0 print:max-w-full print:bg-white"
         id="resume-preview"
+        style={{ fontFamily: "Inter, Arial, sans-serif" }}
       >
         {/* Header */}
-        <div className="flex flex-col items-center border-b-2 border-blue-100 pb-4 mb-6 print:border-gray-300">
-          <h1 className="text-3xl font-bold tracking-wide text-gray-900">
+        <div className="flex flex-col items-center border-b border-blue-200 pb-4 mb-6 print:border-gray-300">
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 print:text-black">
             {personalInfo.FullName || personalInfo.fullName || "Your Name"}
           </h1>
-          <div className="mt-2 flex flex-wrap justify-center gap-4 text-gray-700 text-sm">
+          <div className="mt-2 flex flex-wrap justify-center gap-4 text-gray-700 text-base print:text-black">
             <span>{personalInfo.Email || personalInfo.email || "email@example.com"}</span>
             <span>|</span>
             <span>{personalInfo.Phone || personalInfo.phone || "123-456-7890"}</span>
@@ -46,7 +47,7 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
                   href={personalInfo.LinkedIn || personalInfo.linkedIn}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline text-blue-700"
+                  className="underline text-blue-700 print:text-black"
                 >
                   LinkedIn
                 </a>
@@ -59,7 +60,7 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
                   href={personalInfo.GitHub || personalInfo.gitHub}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline text-blue-700"
+                  className="underline text-blue-700 print:text-black"
                 >
                   GitHub
                 </a>
@@ -71,7 +72,7 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
             <div className="mt-2 flex flex-wrap gap-3 justify-center">
               {personalInfo.customFields.map((field, idx) =>
                 field.label && field.value ? (
-                  <div key={idx} className="text-xs bg-blue-50 px-3 py-1 rounded-full print:bg-transparent">
+                  <div key={idx} className="text-xs bg-blue-50 px-3 py-1 rounded-full print:bg-transparent print:text-black">
                     <span className="font-semibold">{field.label}:</span> {field.value}
                   </div>
                 ) : null
@@ -83,17 +84,17 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
         {/* Summary */}
         {summary && summary.length > 0 && (
           <section className="mb-6">
-            <h2 className="text-lg font-bold text-blue-800 mb-1 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300">
+            <h2 className="text-xl font-bold text-blue-800 print:text-black mb-2 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300 uppercase">
               Summary
             </h2>
             {Array.isArray(summary) ? (
-              <ul className="list-disc pl-5 text-gray-800">
+              <ul className="list-disc pl-5 text-gray-800 print:text-black">
                 {summary.map((point, index) => (
                   <li key={index}>{point}</li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-800">{summary}</p>
+              <p className="text-gray-800 print:text-black">{summary}</p>
             )}
           </section>
         )}
@@ -101,23 +102,23 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
         {/* Experience */}
         {Array.isArray(experiences) && experiences.length > 0 && (
           <section className="mb-6">
-            <h2 className="text-lg font-bold text-blue-800 mb-1 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300">
+            <h2 className="text-xl font-bold text-blue-800 print:text-black mb-2 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300 uppercase">
               Experience
             </h2>
             {experiences.map((item, index) => (
               <div key={index} className="mb-3">
                 <div className="flex flex-wrap justify-between items-center">
-                  <h3 className="text-md font-semibold text-blue-700">
+                  <h3 className="text-lg font-semibold text-blue-700 print:text-black">
                     {item.jobTitle || item.role || item.name}
-                    {item.company && <span className="font-normal text-gray-700"> at {item.company}</span>}
+                    {item.company && <span className="font-normal text-gray-700 print:text-black"> at {item.company}</span>}
                   </h3>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 print:text-black">
                     {(item.startDate || item.start) || ""} - {(item.endDate || item.end) || ""}
                   </span>
                 </div>
-                <p className="text-gray-800">{item.description || item.desc}</p>
+                <p className="text-gray-800 print:text-black">{item.description || item.desc}</p>
                 {(item.technologiesUsed || item.technologies || item.tech) && (
-                  <p className="text-xs italic text-gray-500">
+                  <p className="text-xs italic text-gray-500 print:text-black">
                     Tech: {item.technologiesUsed || item.technologies || item.tech}
                   </p>
                 )}
@@ -129,22 +130,22 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
         {/* Education */}
         {Array.isArray(education) && education.length > 0 && (
           <section className="mb-6">
-            <h2 className="text-lg font-bold text-blue-800 mb-1 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300">
+            <h2 className="text-xl font-bold text-blue-800 print:text-black mb-2 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300 uppercase">
               Education
             </h2>
             {education.map((edu, index) => (
               <div key={index} className="mb-3">
                 <div className="flex flex-wrap justify-between items-center">
-                  <h3 className="text-md font-semibold">{edu.institute}</h3>
-                  <span className="text-xs text-gray-500">{edu.startDate} – {edu.endDate}</span>
+                  <h3 className="text-lg font-semibold text-gray-900 print:text-black">{edu.institute}</h3>
+                  <span className="text-xs text-gray-500 print:text-black">{edu.startDate} – {edu.endDate}</span>
                 </div>
-                <p className="text-sm text-gray-700">{edu.degree}</p>
+                <p className="text-sm text-gray-700 print:text-black">{edu.degree}</p>
                 {edu.technologies && (
-                  <p className="text-xs italic text-gray-500">
+                  <p className="text-xs italic text-gray-500 print:text-black">
                     Technologies: {edu.technologies}
                   </p>
                 )}
-                {edu.description && <p className="text-sm">{edu.description}</p>}
+                {edu.description && <p className="text-sm print:text-black">{edu.description}</p>}
               </div>
             ))}
           </section>
@@ -153,22 +154,22 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
         {/* Projects */}
         {Array.isArray(projects) && projects.length > 0 && (
           <section className="mb-6">
-            <h2 className="text-lg font-bold text-blue-800 mb-1 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300">
+            <h2 className="text-xl font-bold text-blue-800 print:text-black mb-2 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300 uppercase">
               Projects
             </h2>
             {projects.map((proj, index) => (
               <div key={index} className="mb-3">
                 <div className="flex flex-wrap justify-between items-center">
-                  <h3 className="text-md font-semibold text-purple-700">{proj.name || proj.title || "Project"}</h3>
+                  <h3 className="text-lg font-semibold text-purple-700 print:text-black">{proj.name || proj.title || "Project"}</h3>
                   {(proj.startDate || proj.endDate) && (
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 print:text-black">
                       {proj.startDate} {proj.endDate && `– ${proj.endDate}`}
                     </span>
                   )}
                 </div>
-                <p className="text-gray-800">{proj.description}</p>
+                <p className="text-gray-800 print:text-black">{proj.description}</p>
                 {proj.technologies && (
-                  <p className="text-xs italic text-gray-500">
+                  <p className="text-xs italic text-gray-500 print:text-black">
                     Technologies: {proj.technologies}
                   </p>
                 )}
@@ -180,7 +181,7 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
         {/* Skills Section */}
         {Array.isArray(skills) && skills.length > 0 && (
           <section className="mb-2">
-            <h2 className="text-lg font-bold text-blue-800 mb-1 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300">
+            <h2 className="text-xl font-bold text-blue-800 print:text-black mb-2 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300 uppercase">
               Skills
             </h2>
             <ul className="flex flex-wrap gap-2 mt-2">
