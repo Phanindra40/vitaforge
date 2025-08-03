@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser, UserButton } from "@clerk/clerk-react";
+import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/header.png";
 
 const Header = () => {
@@ -8,7 +9,7 @@ const Header = () => {
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
 
-  // Typewriter effect for VitaForge.ai
+  // Typing Effect
   const [typedText, setTypedText] = useState("");
   const fullText = "VitaForge.ai";
   const typingSpeed = 120;
@@ -16,10 +17,9 @@ const Header = () => {
   const repeatCount = 2;
 
   useEffect(() => {
-    let index = 0;
-    let loopCount = 0;
-    let typing = true;
-
+    let index = 0,
+      loopCount = 0,
+      typing = true;
     const interval = setInterval(() => {
       if (typing) {
         if (index <= fullText.length) {
@@ -33,65 +33,107 @@ const Header = () => {
               setTypedText("");
               typing = true;
               loopCount++;
-            } else {
-              clearInterval(interval);
-            }
+            } else clearInterval(interval);
           }, pauseDuration);
         }
       }
     }, typingSpeed);
-
     return () => clearInterval(interval);
   }, []);
 
   const handleGetStarted = () => navigate("/sign-in");
 
   return (
-    <header className="bg-gradient-to-r from-white via-purple-50 to-blue-100 sticky top-0 z-50 shadow-md backdrop-blur-lg w-full">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo + Typing Name */}
-          <div className="flex items-center space-x-3 min-w-0">
-            <div className="relative flex-shrink-0">
-              <img
-                src={logo}
-                alt="VitaForge Logo"
-                className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-purple-400 shadow"
-              />
-              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-purple-400 animate-ping"></span>
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-wide flex items-center font-mono truncate bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-500 bg-clip-text text-transparent">
+    <motion.header
+      initial={{ opacity: 0, y: -25 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="sticky top-0 z-50 w-full px-4 sm:px-6 py-3 bg-transparent"
+    >
+      <div className="max-w-6xl mx-auto">
+        {/* Main Navigation Bar */}
+        <motion.div
+          initial={{ scale: 0.97, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="flex flex-col md:flex-row items-center justify-between bg-white/70 border border-purple-200 rounded-full shadow-xl backdrop-blur px-6 py-3 space-y-4 md:space-y-0 md:space-x-6"
+        >
+          {/* Logo + Typing Text */}
+          <div className="flex items-center space-x-3">
+            <img
+              src={logo}
+              alt="VitaForge Logo"
+              className="h-10 w-10 rounded-full border-2 border-purple-500 shadow-md"
+            />
+            <div>
+              <h1 className="text-lg sm:text-xl font-extrabold font-mono tracking-tight bg-gradient-to-r from-purple-600 to-indigo-500 text-transparent bg-clip-text">
                 {typedText}
-                <span className="ml-1 w-1 h-6 bg-purple-400 animate-blink rounded-sm"></span>
+                <span className="ml-1 w-[2px] h-5 bg-purple-500 inline-block animate-blink" />
               </h1>
-              <p className="text-xs text-purple-500 italic mt-1 truncate">AI Resume Builder</p>
+              <p className="text-xs text-purple-500 italic">AI Resume Builder</p>
             </div>
           </div>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center">
-            <Link to="/features" className="text-purple-700 hover:text-indigo-700 font-medium transition">Features</Link>
-            {isSignedIn && (
-              <Link to="/dashboard" className="text-purple-700 hover:text-indigo-700 font-medium transition">Dashboard</Link>
-            )}
-            <Link to="/contact" className="text-purple-700 hover:text-indigo-700 font-medium transition">Contact</Link>
+          {/* CTA + Nav Links */}
+          <div className="flex items-center space-x-4">
+            <AnimatePresence>
+              {isSignedIn && (
+                <motion.div
+                  key="dashboard-link"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.3 }}
+                  className="hidden md:block"
+                >
+                  <Link
+                    to="/dashboard"
+                    className="text-sm font-medium text-gray-700 hover:text-purple-600 transition"
+                  >
+                    Dashboard
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.div
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="hidden md:block"
+            >
+              <Link
+                to="/features"
+                className="text-sm font-medium text-gray-700 hover:text-purple-600 transition"
+              >
+                Features
+              </Link>
+            </motion.div>
+
             {isSignedIn ? (
-              <UserButton afterSignOutUrl="/" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <UserButton afterSignOutUrl="/" />
+              </motion.div>
             ) : (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleGetStarted}
-                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 sm:px-5 py-2 rounded-full font-bold shadow hover:from-purple-600 hover:to-indigo-700 transition"
+                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-1.5 text-sm rounded-full font-semibold hover:from-purple-600 hover:to-indigo-700 transition shadow"
               >
                 Get Started 🚀
-              </button>
+              </motion.button>
             )}
-          </nav>
 
-          {/* Mobile Hamburger */}
-          <div className="md:hidden flex-shrink-0">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-purple-900">
-              <svg className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            {/* Mobile Menu Toggle */}
+            <button
+              className="md:hidden text-purple-700 focus:outline-none"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 {isMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -100,32 +142,57 @@ const Header = () => {
               </svg>
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Mobile Nav */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-3 space-y-3 pb-5 text-center">
-            <Link to="/features" className="block text-purple-700 hover:text-indigo-700 font-medium">Features</Link>
-            {isSignedIn && (
-              <Link to="/dashboard" className="block text-purple-700 hover:text-indigo-700 font-medium">Dashboard</Link>
-            )}
-            <Link to="/contact" className="block text-purple-700 hover:text-indigo-700 font-medium">Contact</Link>
-            {isSignedIn ? (
-              <div className="flex justify-center">
-                <UserButton afterSignOutUrl="/" />
-              </div>
-            ) : (
-              <button
-                onClick={handleGetStarted}
-                className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-2 rounded-full font-semibold hover:from-purple-600 hover:to-indigo-700 transition shadow"
+        {/* Mobile Dropdown */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-4 bg-white border border-purple-200 rounded-xl shadow-md p-4 space-y-3 text-center md:hidden overflow-hidden"
+            >
+              <Link
+                to="/features"
+                className="block text-purple-700 font-medium hover:text-indigo-700"
               >
-                Get Started 🚀
-              </button>
-            )}
-          </div>
-        )}
+                Features
+              </Link>
+
+              <AnimatePresence>
+                {isSignedIn && (
+                  <motion.div
+                    key="mobile-dashboard-link"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <Link
+                      to="/dashboard"
+                      className="block text-purple-700 font-medium hover:text-indigo-700"
+                    >
+                      Dashboard
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {!isSignedIn && (
+                <button
+                  onClick={handleGetStarted}
+                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-2 rounded-full font-semibold hover:from-purple-600 hover:to-indigo-700 transition shadow"
+                >
+                  Get Started 🚀
+                </button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </header>
+    </motion.header>
   );
 };
 
