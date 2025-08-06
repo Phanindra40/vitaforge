@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid'; // Make sure to install this: npm install uuid
 
 const Dashboard = () => {
   const [showDialog, setShowDialog] = useState(false);
@@ -8,18 +9,34 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
+  // Load resumes from localStorage
+  useEffect(() => {
+    const storedResumes = JSON.parse(localStorage.getItem("resumes")) || [];
+    setResumes(storedResumes);
+  }, []);
+
   const handleCreate = () => {
     if (resumeName.trim()) {
-      localStorage.setItem("resumeName", resumeName);
+      const newResume = { id: uuidv4(), name: resumeName.trim() };
+      console.log("Generated UUID for new resume:", newResume.id); // <-- Log the UUID
+      const updatedResumes = [...resumes, newResume];
+      localStorage.setItem("resumeName", newResume.name); // For addresume flow
+      localStorage.setItem("resumes", JSON.stringify(updatedResumes));
+      setResumes(updatedResumes);
       setResumeName("");
       setShowDialog(false);
-      navigate("/addresume");
+      navigate("/addresume", { state: { resumeId: newResume.id, resumeName: newResume.name } });
     }
   };
 
-  const handleDelete = (indexToDelete) => {
-    const updated = resumes.filter((_, index) => index !== indexToDelete);
+  const handleDelete = (idToDelete) => {
+    const updated = resumes.filter((resume) => resume.id !== idToDelete);
     setResumes(updated);
+    localStorage.setItem("resumes", JSON.stringify(updated));
+  };
+
+  const handlePreview = (resumeId) => {
+    navigate(`/preview/${resumeId}`);
   };
 
   return (
@@ -29,7 +46,6 @@ const Dashboard = () => {
       </h1>
       <p className="text-gray-600 mb-8">Start creating an AI resume for your next job role.</p>
 
-      {/* Resume cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
         {/* Plus card */}
         <div
@@ -39,19 +55,22 @@ const Dashboard = () => {
           <span className="text-5xl text-blue-500">+</span>
         </div>
 
-        {/* Resume preview cards */}
-        {resumes.map((name, index) => (
+        {/* Resume cards */}
+        {resumes.map((resume) => (
           <div
-            key={index}
+            key={resume.id}
             className="w-full h-48 bg-white border border-blue-100 rounded-2xl shadow-md p-5 flex flex-col justify-between hover:shadow-lg transition"
           >
-            <h2 className="text-lg font-semibold text-blue-900 truncate">{name}</h2>
+            <h2 className="text-lg font-semibold text-blue-900 truncate">{resume.name}</h2>
             <div className="mt-auto flex gap-2">
-              <button className="px-4 py-1 text-sm bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full font-semibold shadow hover:from-blue-600 hover:to-purple-600 transition">
+              <button
+                onClick={() => handlePreview(resume.id)}
+                className="px-4 py-1 text-sm bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full font-semibold shadow hover:from-blue-600 hover:to-purple-600 transition"
+              >
                 Preview
               </button>
               <button
-                onClick={() => handleDelete(index)}
+                onClick={() => handleDelete(resume.id)}
                 className="px-4 py-1 text-sm bg-red-500 text-white rounded-full font-semibold shadow hover:bg-red-600 transition"
               >
                 Delete

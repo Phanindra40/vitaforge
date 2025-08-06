@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../../../api/axios";
+import { motion } from "framer-motion";
 
 const FIELDS = [
   {
@@ -34,7 +34,7 @@ const FIELDS = [
   },
 ];
 
-const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext }) => {
+const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext, resumeId }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPersonalInfo((prev) => ({
@@ -68,34 +68,44 @@ const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext }) => {
     }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      await api.post("/resumes", {
-        data: {
-          FullName: personalInfo.FullName,
-          Email: personalInfo.Email,
-          Phone: personalInfo.Phone,
-          GitHub: personalInfo.GitHub,
-          LinkedIn: personalInfo.LinkedIn,
-          customFields: personalInfo.customFields,
-        },
-      });
-      alert("Personal Info Saved!");
-      if (onNext) onNext();
-    } catch (err) {
-      console.error("❌ Error:", err.response?.data || err.message);
-    }
+  const handleNext = () => {
+    // resumeId is available here if needed in the future
+    onNext(); // just call onNext for now
   };
 
   return (
-    <div className="bg-white/90 p-6 md:p-10 rounded-2xl shadow-xl max-w-3xl mx-auto border border-gray-200 mt-6 transition-all duration-300">
+    <motion.div
+      className="bg-white/90 p-6 md:p-10 rounded-2xl shadow-xl max-w-3xl mx-auto border border-gray-200 mt-6"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4 }}
+    >
       <h2 className="text-2xl md:text-3xl font-extrabold text-gradient bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-8 text-center">
         Personal Information
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: {
+            transition: {
+              staggerChildren: 0.1,
+            },
+          },
+        }}
+      >
         {FIELDS.map((field) => (
-          <div key={field.name} className="flex flex-col">
+          <motion.div
+            key={field.name}
+            className="flex flex-col"
+            variants={{
+              hidden: { opacity: 0, y: 10 },
+              visible: { opacity: 1, y: 0 },
+            }}
+          >
             <label className="block text-gray-700 font-semibold mb-1">
               {field.label}
             </label>
@@ -108,9 +118,9 @@ const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext }) => {
               className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
               autoComplete="off"
             />
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Custom Fields */}
       <div className="mt-10">
@@ -120,9 +130,12 @@ const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext }) => {
         </h3>
 
         {(personalInfo.customFields || []).map((field, index) => (
-          <div
+          <motion.div
             key={index}
             className="flex flex-col md:flex-row gap-4 mb-4 items-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2 }}
           >
             <input
               type="text"
@@ -150,7 +163,7 @@ const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext }) => {
             >
               ✕
             </button>
-          </div>
+          </motion.div>
         ))}
 
         <button
@@ -163,14 +176,16 @@ const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext }) => {
       </div>
 
       <div className="mt-10 flex justify-end">
-        <button
-          onClick={handleSubmit}
-          className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:scale-105 hover:from-purple-700 hover:to-pink-600 transition-all duration-200"
+        <motion.button
+          onClick={handleNext}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all duration-200"
         >
-          Save & Next
-        </button>
+          Next
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

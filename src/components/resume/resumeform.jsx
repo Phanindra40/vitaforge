@@ -1,6 +1,5 @@
-// src/components/ResumeForm.jsx
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect, useRef } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 import PersonalInfoSection from "./sections/PersonalInfoSection";
 import SummarySection from "./sections/SummarySection";
@@ -9,10 +8,21 @@ import ProjectsSection from "./sections/ProjectsSection";
 import EducationSection from "./sections/EducationSection";
 import SkillsSection from "./sections/SkillsSection";
 import Preview from "./Preview";
+import ErrorBoundary from "./ErrorBoundary";
+import { useReactToPrint } from "react-to-print";
 
-const ResumeForm = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [resumeId, setResumeId] = useState(null); // For update after creation
+
+const ResumeForm = ({ resumeName }) => {
+  const [step, setStep] = useState(1);
+  const [resumeId, setResumeId] = useState(null);
+
+  const resumeRef = useRef(null);
+  const handlePrint = useReactToPrint({
+    content: () => resumeRef.current,
+    documentTitle: "VitaForge_Resume",
+    removeAfterPrint: true,
+  });
+
 
   const [personalInfo, setPersonalInfo] = useState({
     FullName: "",
@@ -22,15 +32,40 @@ const ResumeForm = () => {
     LinkedIn: "",
     customFields: [],
   });
-
   const [summary, setSummary] = useState("");
   const [experiences, setExperiences] = useState([]);
   const [projects, setProjects] = useState([]);
   const [education, setEducation] = useState([]);
   const [skills, setSkills] = useState([]);
-  const [loading, setLoading] = useState(false);
 
-  const handleFinalSubmit = async () => {
+  // Resume ID generation and reset logic
+  useEffect(() => {
+    let storedId = localStorage.getItem("resumeId");
+    if (!storedId || resumeName?.toLowerCase()?.includes("new")) {
+      storedId = uuidv4();
+      localStorage.setItem("resumeId", storedId);
+    }
+    setResumeId(storedId);
+  }, [resumeName]); // react when resumeName changes
+
+  // Resume Data loading
+  useEffect(() => {
+    if (resumeId) {
+      const allResumes = JSON.parse(localStorage.getItem("resumeData")) || {};
+      const data = allResumes[resumeId];
+      if (data) {
+        setPersonalInfo(data.personalInfo || {});
+        setSummary(data.summary || "");
+        setExperiences(data.experiences || []);
+        setProjects(data.projects || []);
+        setEducation(data.education || []);
+        setSkills(data.skills || []);
+      }
+    }
+  }, [resumeId]);
+
+  // Save to localStorage
+  const saveResume = (updatedFields = {}) => {
     const payload = {
       personalInfo,
       summary,
@@ -38,180 +73,153 @@ const ResumeForm = () => {
       projects,
       education,
       skills,
+      ...updatedFields,
     };
-
-    try {
-      const url = resumeId
-        ? `https://backend-vitaforge.onrender.com/api/resumes/${resumeId}`
-        : `https://backend-vitaforge.onrender.com/api/resumes`;
-
-      const response = resumeId
-        ? await axios.put(url, { data: payload })
-        : await axios.post(url, { data: payload });
-
-      console.log("✅ Resume saved:", response.data);
-
-      if (!resumeId) {
-        setResumeId(response.data.data.id);
-      }
-
-      alert("✅ Resume saved successfully!");
-    } catch (err) {
-      console.error("❌ Error saving resume:", err);
-      alert("❌ Failed to save resume. Please try again.");
-    }
+    const allResumes = JSON.parse(localStorage.getItem("resumeData")) || {};
+    allResumes[resumeId] = payload;
+    localStorage.setItem("resumeData", JSON.stringify(allResumes));
   };
 
-  const handleGeminiRequest = async (prompt) => {
-    try {
-      setLoading(true);
-      const response = await axios.post("https://backend-vitaforge.onrender.com/api/gemini/generate", { prompt });
-      const geminiText = response.data.response || response.data.text || "";
-      setSummary(geminiText);
-    } catch (error) {
-      console.error("Gemini request failed:", error);
-      alert("Failed to generate summary. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const nextStep = () => setStep((prev) => prev + 1);
+  const prevStep = () => setStep((prev) => prev - 1);
 
-  const handleGeminiSuggest = async (section, index, entry) => {
-    try {
-      setLoading(true);
-      const prompt =
-        section === "project"
-          ? `Write a concise, impressive resume project description for a project titled "${entry.title}". Technologies used: ${entry.technologiesUsed}. Duration: ${entry.duration}.`
-          : `Write a concise and impactful resume description for the role of ${entry.jobTitle} at ${entry.company}, using technologies: ${entry.technologiesUsed}`;
-
-      const response = await axios.post("https://backend-vitaforge.onrender.com/api/gemini/generate", { prompt });
-
-      const generatedText = response.data.text || response.data.response || "Generated description not available.";
-
-      if (section === "project") {
-        const updated = [...projects];
-        updated[index].description = generatedText;
-        setProjects(updated);
-      } else {
-        const updated = [...experiences];
-        updated[index].description = generatedText;
-        setExperiences(updated);
-      }
-    } catch (error) {
-      console.error("AI generation failed", error);
-      alert("Failed to generate description. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const steps = [
-    {
-      title: "Personal Info",
-      component: (
-        <PersonalInfoSection
-          personalInfo={personalInfo}
-          setPersonalInfo={setPersonalInfo}
-          onNext={() => setCurrentStep((prev) => prev + 1)}
-        />
-      ),
-    },
-    {
-      title: "Summary",
-      component: (
-        <SummarySection
-          data={summary}
-          onUpdate={setSummary}
-          loading={loading}
-          onGeminiRequest={handleGeminiRequest}
-          onNext={() => setCurrentStep((prev) => prev + 1)}
-          onBack={() => setCurrentStep((prev) => prev - 1)}
-        />
-      ),
-    },
-    {
-      title: "Experience",
-      component: (
-        <ExperienceSection
-          data={experiences}
-          onUpdate={setExperiences}
-          onGeminiSuggest={handleGeminiSuggest}
-          loading={loading}
-          onNext={() => setCurrentStep((prev) => prev + 1)}
-          onBack={() => setCurrentStep((prev) => prev - 1)}
-        />
-      ),
-    },
-    {
-      title: "Projects",
-      component: (
-        <ProjectsSection
-          data={projects}
-          onUpdate={setProjects}
-          onGeminiSuggest={handleGeminiSuggest}
-          loading={loading}
-          onNext={() => setCurrentStep((prev) => prev + 1)}
-          onBack={() => setCurrentStep((prev) => prev - 1)}
-        />
-      ),
-    },
-    {
-      title: "Education",
-      component: (
-        <EducationSection
-          data={education}
-          onChange={(data) => setEducation(data)}
-          onSave={(data) => setEducation(data)}
-          onNext={() => setCurrentStep((prev) => prev + 1)}
-          onBack={() => setCurrentStep((prev) => prev - 1)}
-        />
-      ),
-    },
-    {
-      title: "Skills",
-      component: (
-        <SkillsSection
-          data={skills}
-          onChange={(data) => setSkills(data)}
-          onSave={(data) => setSkills(data)}
-          onBack={() => setCurrentStep((prev) => prev - 1)}
-          onNext={handleFinalSubmit} // ✅ Final step triggers save
-        />
-      ),
-    },
-  ];
-
-  const progressPercentage = ((currentStep + 1) / steps.length) * 100;
+  if (!resumeId) {
+    return <div className="text-center mt-10">Generating resume ID...</div>;
+  }
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 bg-gradient-to-tr from-purple-100 to-white min-h-screen p-6">
-      <div className="w-full md:w-2/3">
-        <h1 className="text-3xl font-bold text-purple-700 mb-4">
-          📝 Build Your Resume
-        </h1>
+    <ErrorBoundary>
+      <div className="flex flex-col md:flex-row gap-6 bg-gradient-to-tr from-purple-100 to-white min-h-screen p-6">
+        <div className="w-full md:w-2/3">
+          <h1 className="text-3xl font-bold text-purple-700 mb-4">
+            📝 {resumeName || "Build Your Resume"}
+          </h1>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-purple-200 rounded-full h-3 mb-6">
-          <div
-            className="bg-purple-600 h-3 rounded-full transition-all duration-500"
-            style={{ width: `${progressPercentage}%` }}
-          ></div>
+          {/* Progress bar */}
+          <div className="w-full bg-purple-200 rounded-full h-3 mb-6">
+            <div
+              className="bg-purple-600 h-3 rounded-full transition-all duration-500"
+              style={{ width: `${(step / 7) * 100}%` }}
+            ></div>
+          </div>
+
+          {/* Step-based rendering */}
+          {step === 1 && (
+            <PersonalInfoSection
+              personalInfo={personalInfo}
+              setPersonalInfo={(info) => {
+                setPersonalInfo(info);
+                saveResume({ personalInfo: info });
+              }}
+              onNext={nextStep}
+              resumeId={resumeId}
+            />
+          )}
+
+          {step === 2 && (
+            <SummarySection
+              data={summary}
+              onUpdate={(val) => {
+                setSummary(val);
+                saveResume({ summary: val });
+              }}
+              onNext={nextStep}
+              onBack={prevStep}
+              resumeId={resumeId}
+            />
+          )}
+
+          {step === 3 && (
+            <ExperienceSection
+              data={experiences}
+              onUpdate={(val) => {
+                setExperiences(val);
+                saveResume({ experiences: val });
+              }}
+              onNext={nextStep}
+              onBack={prevStep}
+              resumeId={resumeId}
+            />
+          )}
+
+          {step === 4 && (
+            <ProjectsSection
+              data={projects}
+              onUpdate={(val) => {
+                setProjects(val);
+                saveResume({ projects: val });
+              }}
+              onNext={nextStep}
+              onBack={prevStep}
+              resumeId={resumeId}
+            />
+          )}
+
+          {step === 5 && (
+            <EducationSection
+              data={education}
+              onChange={(val) => {
+                setEducation(val);
+                saveResume({ education: val });
+              }}
+              onSave={(val) => {
+                setEducation(val);
+                saveResume({ education: val });
+              }}
+              onNext={nextStep}
+              onBack={prevStep}
+              resumeId={resumeId}
+            />
+          )}
+
+          {step === 6 && (
+            <SkillsSection
+              data={skills}
+              onChange={(val) => {
+                setSkills(val);
+                saveResume({ skills: val });
+              }}
+              onSave={(val) => {
+                setSkills(val);
+                saveResume({ skills: val });
+                nextStep();
+              }}
+              onBack={prevStep}
+              resumeId={resumeId}
+            />
+          )}
+
+          {/* Full preview with print button */}
+          {step === 7 && (
+            <Preview
+              personalInfo={personalInfo}
+              summary={summary}
+              experiences={experiences}
+              projects={projects}
+              education={education}
+              skills={skills}
+              resumeRef={resumeRef}
+              handlePrint={handlePrint}
+            />
+          )}
         </div>
 
-        {steps[currentStep].component}
+        {/* Side preview panel */}
+        <div className="w-full md:w-1/3 sticky top-6">
+          {step !== 7 && (
+            <Preview
+              personalInfo={personalInfo}
+              summary={summary}
+              experiences={experiences}
+              projects={projects}
+              education={education}
+              skills={skills}
+              isMini={true}
+            />
+          )}
+        </div>
       </div>
-
-      <div className="w-full md:w-1/3 sticky top-6">
-        <Preview
-          personalInfo={personalInfo}
-          summary={summary}
-          experiences={experiences}
-          projects={projects}
-          education={education}
-          skills={skills}
-        />
-      </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 

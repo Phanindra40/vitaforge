@@ -23,6 +23,8 @@ import SignUpPage from './auth/SignUpPage';
 import AddResume from './components/resume/addresume';
 import ContactPage from './components/contact';
 import ResumeForm from './components/resume/resumeform';
+import Preview from './components/resume/Preview';
+
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -62,6 +64,8 @@ const AppRoutes = () => (
     <Route path="/features" element={<Features />} />
     <Route path="/addresume" element={<ResumeForm />} />
     <Route path="/contact" element={<ContactPage/>} />
+    <Route path="/preview/:resumeId" element={<Preview />} />
+
 
     {/* Clerk Sign In */}
     <Route

@@ -13,9 +13,11 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.31.9",
+    "@google/generative-ai": "^0.24.1",
+    "@headlessui/react": "^2.2.4",
     "@tailwindcss/vite": "^4.1.8",
     "axios": "^1.10.0",
-    "framer-motion": "^12.23.0",
+    "framer-motion": "^12.23.12",
     "lucide-react": "^0.513.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -23,7 +25,8 @@
     "react-router-dom": "^7.6.2",
     "react-simple-typewriter": "^5.0.1",
     "react-to-print": "^3.1.1",
-    "tailwindcss": "^4.1.8"
+    "tailwindcss": "^4.1.8",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

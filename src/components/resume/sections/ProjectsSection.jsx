@@ -1,5 +1,6 @@
 import { Sparkles } from "lucide-react";
 import ErrorBoundary from "../ErrorBoundary";
+import { motion } from "framer-motion";
 
 const ProjectsSection = ({
   data,
@@ -8,6 +9,7 @@ const ProjectsSection = ({
   loading,
   onNext,
   onBack,
+  resumeId, // 💡 Passed but not used (for now)
 }) => {
   const handleChange = (index, field, value) => {
     const updated = data.map((proj, i) =>
@@ -31,15 +33,23 @@ const ProjectsSection = ({
 
   return (
     <ErrorBoundary>
-      <div className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-2xl rounded-2xl border border-purple-100 max-w-2xl mx-auto transition-all duration-300">
+      <motion.div
+        className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-2xl rounded-2xl border border-purple-100 max-w-3xl mx-auto transition-all duration-300"
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h2 className="text-2xl font-extrabold text-gradient bg-gradient-to-r from-purple-600 to-indigo-500 bg-clip-text text-transparent mb-6 text-center">
           Projects
         </h2>
 
         {data.map((project, index) => (
-          <div
+          <motion.div
             key={index}
-            className="mb-6 p-4 bg-white/80 rounded-xl shadow border border-gray-200 space-y-2"
+            className="mb-6 p-4 bg-white/80 rounded-xl shadow border border-gray-200 space-y-3"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.05 * index }}
           >
             <input
               className="w-full px-4 py-2 border rounded-lg"
@@ -70,12 +80,12 @@ const ProjectsSection = ({
                 handleChange(index, "description", e.target.value)
               }
             />
-            <div className="flex gap-3 mt-2">
+            <div className="flex flex-wrap gap-3 mt-2 justify-between items-center">
               <button
                 onClick={() =>
                   onGeminiSuggest && onGeminiSuggest("project", index, project)
                 }
-                className="flex items-center gap-2 bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-semibold shadow hover:bg-indigo-700 transition"
+                className="flex items-center gap-2 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold shadow hover:bg-indigo-700 transition"
                 disabled={loading}
               >
                 <Sparkles size={16} />
@@ -88,17 +98,19 @@ const ProjectsSection = ({
                 Remove
               </button>
             </div>
-          </div>
+          </motion.div>
         ))}
 
-        <button
-          onClick={addProject}
-          className="bg-purple-600 text-white px-4 py-2 rounded-xl font-semibold shadow hover:bg-purple-700 transition"
-        >
-          + Add Project
-        </button>
+        <div className="mb-6">
+          <button
+            onClick={addProject}
+            className="bg-purple-600 text-white px-4 py-2 rounded-xl font-semibold shadow hover:bg-purple-700 transition"
+          >
+            + Add Project
+          </button>
+        </div>
 
-        <div className="mt-8 flex gap-3 justify-end">
+        <div className="flex gap-3 justify-end">
           {onBack && (
             <button
               onClick={onBack}
@@ -116,7 +128,7 @@ const ProjectsSection = ({
             </button>
           )}
         </div>
-      </div>
+      </motion.div>
     </ErrorBoundary>
   );
 };

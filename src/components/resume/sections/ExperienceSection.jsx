@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import ErrorBoundary from "../ErrorBoundary";
+import { motion } from "framer-motion";
 
 const ExperienceSection = ({
   data,
@@ -8,6 +10,7 @@ const ExperienceSection = ({
   loading,
   onNext,
   onBack,
+  resumeId, // passed, not used for now
 }) => {
   const handleChange = (index, field, value) => {
     const updated = data.map((exp, i) =>
@@ -38,14 +41,23 @@ const ExperienceSection = ({
 
   return (
     <ErrorBoundary>
-      <div className="p-6 bg-gradient-to-br from-green-50 to-blue-50 shadow-2xl rounded-2xl border border-green-100 max-w-2xl mx-auto transition-all duration-300">
+      <motion.div
+        className="p-6 bg-gradient-to-br from-green-50 to-blue-50 shadow-2xl rounded-2xl border border-green-100 max-w-3xl mx-auto transition-all duration-300"
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h2 className="text-2xl font-extrabold text-gradient bg-gradient-to-r from-green-600 to-blue-500 bg-clip-text text-transparent mb-6 text-center">
           Experience
         </h2>
+
         {data.map((exp, index) => (
-          <div
+          <motion.div
             key={index}
-            className="mb-6 p-4 bg-white/80 rounded-xl shadow border border-gray-200 space-y-2"
+            className="mb-6 p-4 bg-white/80 rounded-xl shadow border border-gray-200 space-y-3"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 * index }}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
@@ -73,6 +85,7 @@ const ExperienceSection = ({
                 onChange={(e) => handleChange(index, "endDate", e.target.value)}
               />
             </div>
+
             <input
               className="w-full px-4 py-2 border rounded-lg"
               placeholder="Technologies Used (comma-separated)"
@@ -81,21 +94,21 @@ const ExperienceSection = ({
                 handleChange(index, "technologiesUsed", e.target.value)
               }
             />
+
             <textarea
               className="w-full px-4 py-2 border rounded-lg"
               placeholder="Description"
               rows={3}
               value={exp.description}
-              onChange={(e) =>
-                handleChange(index, "description", e.target.value)
-              }
+              onChange={(e) => handleChange(index, "description", e.target.value)}
             />
-            <div className="flex gap-3 mt-2">
+
+            <div className="flex flex-wrap gap-3 mt-2 items-center justify-between">
               <button
                 onClick={() =>
                   onGeminiSuggest && onGeminiSuggest("experience", index, exp)
                 }
-                className="flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition"
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition"
                 disabled={loading}
               >
                 <Sparkles size={16} />
@@ -108,17 +121,19 @@ const ExperienceSection = ({
                 Remove
               </button>
             </div>
-          </div>
+          </motion.div>
         ))}
 
-        <button
-          onClick={addExperience}
-          className="bg-green-600 text-white px-4 py-2 rounded-xl font-semibold shadow hover:bg-green-700 transition"
-        >
-          + Add Experience
-        </button>
+        <div className="mb-6">
+          <button
+            onClick={addExperience}
+            className="bg-green-600 text-white px-4 py-2 rounded-xl font-semibold shadow hover:bg-green-700 transition"
+          >
+            + Add Experience
+          </button>
+        </div>
 
-        <div className="mt-8 flex gap-3 justify-end">
+        <div className="flex gap-3 justify-end">
           {onBack && (
             <button
               onClick={onBack}
@@ -136,7 +151,7 @@ const ExperienceSection = ({
             </button>
           )}
         </div>
-      </div>
+      </motion.div>
     </ErrorBoundary>
   );
 };

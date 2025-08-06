@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create the axios instance
 const api = axios.create({
-  baseURL: "https://backend-vitaforge.onrender.com/api", // change this for production
+  baseURL: "http://localhost:5000/api/gemini/generate", // change this for production
   headers: {
     "Content-Type": "application/json",
   },

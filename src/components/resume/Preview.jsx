@@ -1,30 +1,32 @@
-import React, { useRef } from "react";
-import { useReactToPrint } from "react-to-print";
+import React from "react";
 import ErrorBoundary from "./ErrorBoundary";
 import logo from "../../assets/header.png";
 import "../../index.css";
 
-const Preview = ({ personalInfo, summary, experiences, education, projects, skills }) => {
-  const resumeRef = useRef();
-
-  // Print (browser dialog gives both print and save as PDF)
-  const handlePrint = useReactToPrint({
-    content: () => resumeRef.current,
-    documentTitle: "VitaForge_Resume",
-    removeAfterPrint: true,
-  });
-
+const Preview = ({
+  personalInfo,
+  summary,
+  experiences,
+  education,
+  projects,
+  skills,
+  isMini,
+  resumeRef,
+  handlePrint,
+}) => {
   return (
     <ErrorBoundary>
-      {/* Action Button */}
-      <div className="mb-4 flex justify-end gap-3 print:hidden">
-        <button
-          onClick={handlePrint}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-5 py-2 rounded-full font-semibold shadow hover:from-blue-600 hover:to-purple-700 transition"
-        >
-          🖨️ Print / Download PDF
-        </button>
-      </div>
+      {/* Only show print button if NOT mini */}
+      {!isMini && (
+        <div className="flex justify-end p-4 max-w-[800px] mx-auto print:hidden">
+          <button
+            onClick={handlePrint}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-300"
+          >
+            📄 Print / Download PDF
+          </button>
+        </div>
+      )}
 
       {/* Resume Content */}
       <div className="relative z-10">
@@ -181,7 +183,7 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
             </section>
           )}
 
-          {/* Skills Section */}
+          {/* Skills */}
           {Array.isArray(skills) && skills.length > 0 && (
             <section className="mb-2">
               <h2 className="text-xl font-bold text-blue-800 print:text-black mb-2 tracking-wide border-b border-blue-100 pb-1 print:border-gray-300 uppercase">
@@ -200,7 +202,7 @@ const Preview = ({ personalInfo, summary, experiences, education, projects, skil
             </section>
           )}
 
-          {/* Branding Watermark at bottom, only visible on print/PDF */}
+          {/* Branding Watermark (only print) */}
           <div className="w-full flex-col items-center mt-10 pt-6 border-t border-blue-100 print:border-gray-300 hidden print:flex">
             <img
               src={logo}
