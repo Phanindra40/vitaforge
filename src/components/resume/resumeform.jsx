@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 import PersonalInfoSection from "./sections/PersonalInfoSection";
@@ -9,20 +10,22 @@ import EducationSection from "./sections/EducationSection";
 import SkillsSection from "./sections/SkillsSection";
 import Preview from "./Preview";
 import ErrorBoundary from "./ErrorBoundary";
-import { useReactToPrint } from "react-to-print";
 
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
-const ResumeForm = ({ resumeName }) => {
-  const [step, setStep] = useState(1);
+const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
+  const location = useLocation();
+  const stateData = location.state || {};
+
   const [resumeId, setResumeId] = useState(null);
+  const [resumeName, setResumeName] = useState(
+    propResumeName || stateData.resumeName || "Untitled Resume"
+  );
 
+  const [step, setStep] = useState(1);
+  const totalSteps = 7;
   const resumeRef = useRef(null);
-  const handlePrint = useReactToPrint({
-    content: () => resumeRef.current,
-    documentTitle: "VitaForge_Resume",
-    removeAfterPrint: true,
-  });
-
 
   const [personalInfo, setPersonalInfo] = useState({
     FullName: "",
@@ -37,59 +40,109 @@ const ResumeForm = ({ resumeName }) => {
   const [projects, setProjects] = useState([]);
   const [education, setEducation] = useState([]);
   const [skills, setSkills] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Resume ID generation and reset logic
+  // Initialize resume
   useEffect(() => {
-    let storedId = localStorage.getItem("resumeId");
-    if (!storedId || resumeName?.toLowerCase()?.includes("new")) {
-      storedId = uuidv4();
-      localStorage.setItem("resumeId", storedId);
-    }
-    setResumeId(storedId);
-  }, [resumeName]); // react when resumeName changes
+    const id = propResumeId || stateData.resumeId || uuidv4();
+    setResumeId(id);
 
-  // Resume Data loading
-  useEffect(() => {
-    if (resumeId) {
-      const allResumes = JSON.parse(localStorage.getItem("resumeData")) || {};
-      const data = allResumes[resumeId];
-      if (data) {
-        setPersonalInfo(data.personalInfo || {});
-        setSummary(data.summary || "");
-        setExperiences(data.experiences || []);
-        setProjects(data.projects || []);
-        setEducation(data.education || []);
-        setSkills(data.skills || []);
-      }
+    const allResumes = JSON.parse(localStorage.getItem("resumeData")) || {};
+    const data = allResumes[id];
+
+    if (data) {
+      setPersonalInfo({ ...personalInfo, ...data.personalInfo });
+      setSummary(data.summary || "");
+      setExperiences(data.experiences || []);
+      setProjects(data.projects || []);
+      setEducation(data.education || []);
+      setSkills(data.skills || []);
     }
-  }, [resumeId]);
+
+    setIsLoading(false);
+  }, [propResumeId, stateData.resumeId]);
 
   // Save to localStorage
-  const saveResume = (updatedFields = {}) => {
-    const payload = {
-      personalInfo,
-      summary,
-      experiences,
-      projects,
-      education,
-      skills,
-      ...updatedFields,
-    };
-    const allResumes = JSON.parse(localStorage.getItem("resumeData")) || {};
-    allResumes[resumeId] = payload;
-    localStorage.setItem("resumeData", JSON.stringify(allResumes));
+  const saveResume = useCallback(
+    (updatedFields = {}) => {
+      if (!resumeId || isLoading) return;
+      const currentData = {
+        personalInfo,
+        summary,
+        experiences,
+        projects,
+        education,
+        skills,
+        resumeName,
+        ...updatedFields,
+      };
+      const allResumes = JSON.parse(localStorage.getItem("resumeData")) || {};
+      allResumes[resumeId] = currentData;
+      localStorage.setItem("resumeData", JSON.stringify(allResumes));
+    },
+    [resumeId, isLoading, personalInfo, summary, experiences, projects, education, skills, resumeName]
+  );
+
+  const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
+  // Download PDF function with multipage support
+  const handleDownloadPDF = async () => {
+    if (!resumeRef.current) return;
+
+    // Save original class
+    const originalClass = resumeRef.current.className;
+
+    // Remove gradient / Tailwind classes and apply fallback styles
+    resumeRef.current.className = "bg-white text-black max-w-[800px] mx-auto";
+    resumeRef.current.style.color = "black"; // Ensure text color is supported
+    resumeRef.current.style.backgroundColor = "white"; // Ensure background color is supported
+
+    try {
+      const canvas = await html2canvas(resumeRef.current, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      pdf.save(
+        (personalInfo.FullName
+          ? personalInfo.FullName.replace(/\s+/g, "_")
+          : "VitaForge_Resume") + ".pdf"
+      );
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      // Restore original classes and styles
+      resumeRef.current.className = originalClass;
+      resumeRef.current.style.color = ""; // Reset text color
+      resumeRef.current.style.backgroundColor = ""; // Reset background color
+    }
   };
 
-  const nextStep = () => setStep((prev) => prev + 1);
-  const prevStep = () => setStep((prev) => prev - 1);
-
-  if (!resumeId) {
-    return <div className="text-center mt-10">Generating resume ID...</div>;
-  }
+  if (isLoading) return null;
 
   return (
     <ErrorBoundary>
       <div className="flex flex-col md:flex-row gap-6 bg-gradient-to-tr from-purple-100 to-white min-h-screen p-6">
+        {/* Main form */}
         <div className="w-full md:w-2/3">
           <h1 className="text-3xl font-bold text-purple-700 mb-4">
             📝 {resumeName || "Build Your Resume"}
@@ -99,11 +152,11 @@ const ResumeForm = ({ resumeName }) => {
           <div className="w-full bg-purple-200 rounded-full h-3 mb-6">
             <div
               className="bg-purple-600 h-3 rounded-full transition-all duration-500"
-              style={{ width: `${(step / 7) * 100}%` }}
+              style={{ width: `${(step / totalSteps) * 100}%` }}
             ></div>
           </div>
 
-          {/* Step-based rendering */}
+          {/* Step components */}
           {step === 1 && (
             <PersonalInfoSection
               personalInfo={personalInfo}
@@ -115,7 +168,6 @@ const ResumeForm = ({ resumeName }) => {
               resumeId={resumeId}
             />
           )}
-
           {step === 2 && (
             <SummarySection
               data={summary}
@@ -128,7 +180,6 @@ const ResumeForm = ({ resumeName }) => {
               resumeId={resumeId}
             />
           )}
-
           {step === 3 && (
             <ExperienceSection
               data={experiences}
@@ -141,7 +192,6 @@ const ResumeForm = ({ resumeName }) => {
               resumeId={resumeId}
             />
           )}
-
           {step === 4 && (
             <ProjectsSection
               data={projects}
@@ -154,7 +204,6 @@ const ResumeForm = ({ resumeName }) => {
               resumeId={resumeId}
             />
           )}
-
           {step === 5 && (
             <EducationSection
               data={education}
@@ -171,7 +220,6 @@ const ResumeForm = ({ resumeName }) => {
               resumeId={resumeId}
             />
           )}
-
           {step === 6 && (
             <SkillsSection
               data={skills}
@@ -188,24 +236,22 @@ const ResumeForm = ({ resumeName }) => {
               resumeId={resumeId}
             />
           )}
-
-          {/* Full preview with print button */}
           {step === 7 && (
             <Preview
+              ref={resumeRef} // For PDF download
               personalInfo={personalInfo}
               summary={summary}
               experiences={experiences}
               projects={projects}
               education={education}
               skills={skills}
-              resumeRef={resumeRef}
-              handlePrint={handlePrint}
+              handleDownloadPDF={handleDownloadPDF} // pass button
             />
           )}
         </div>
 
-        {/* Side preview panel */}
-        <div className="w-full md:w-1/3 sticky top-6">
+        {/* Side preview */}
+        <div className="w-full md:w-1/3 sticky top-6 max-h-[90vh] overflow-y-auto">
           {step !== 7 && (
             <Preview
               personalInfo={personalInfo}

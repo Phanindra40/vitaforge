@@ -12,7 +12,6 @@ import {
   SignedIn,
   SignedOut,
   SignIn,
-  SignUp,
 } from '@clerk/clerk-react';
 
 import Header from './components/Header';
@@ -23,13 +22,11 @@ import SignUpPage from './auth/SignUpPage';
 import AddResume from './components/resume/addresume';
 import ContactPage from './components/contact';
 import ResumeForm from './components/resume/resumeform';
-import Preview from './components/resume/Preview';
-
+import PreviewPage from './components/resume/PreviewPage';
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const ClerkWithRouter = () => {
-  const location = useLocation();
   const navigate = useNavigate();
 
   return (
@@ -62,10 +59,12 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Home />} />
     <Route path="/features" element={<Features />} />
-    <Route path="/addresume" element={<ResumeForm />} />
-    <Route path="/contact" element={<ContactPage/>} />
-    <Route path="/preview/:resumeId" element={<Preview />} />
+    <Route path="/addresume" element={<ResumeForm resumeName="New Resume" />} />
+    <Route path="/contact" element={<ContactPage />} />
+    <Route path="/dashboard" element={<SignedIn><Dashboard /></SignedIn>} />
 
+    {/* Preview Page */}
+    <Route path="/preview/:resumeId" element={<PreviewPage />} />
 
     {/* Clerk Sign In */}
     <Route
@@ -78,24 +77,9 @@ const AppRoutes = () => (
     />
 
     {/* Clerk Sign Up */}
-    
-<Route path="/sign-up/*" element={<SignUpPage />} />
+    <Route path="/sign-up/*" element={<SignUpPage />} />
 
-
-
-
-    {/* Protected Dashboard */}
-    <Route
-      path="/dashboard"
-      element={
-        <SignedIn>
-          <Dashboard />
-        </SignedIn>
-        
-      }
-    />
-
-    {/* Fallback route */}
+    {/* Fallback */}
     <Route path="*" element={<Home />} />
   </Routes>
 );

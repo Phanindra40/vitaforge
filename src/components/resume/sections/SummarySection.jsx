@@ -1,29 +1,50 @@
 import { useState } from "react";
 import { FaPenNib, FaRegFileAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
+import api from "../../../api/axios"; // ✅ import your axios instance
 
 const SummarySection = ({
   data,
   onUpdate,
-  loading,
+  loading: parentLoading,
   onNext,
   onBack,
-  onGeminiRequest,
-  resumeId, // passed down but not used yet
+  resumeId,
 }) => {
   const [jdMode, setJdMode] = useState(false);
   const [jobDesc, setJobDesc] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleGemini = (type) => {
-    const prompt =
-      type === "optimize"
-        ? `Optimize this professional summary: ${data}`
-        : `Generate a professional summary suitable for this job description: ${jobDesc}`;
-    onGeminiRequest(prompt);
+  const handleGemini = async (type) => {
+    try {
+      setLoading(true);
+
+            if (type === "optimize") {
+  const res = await api.post(
+    "/api/gemini/generate", // ✅ matches backend route
+    { prompt: `Optimize this professional summary: ${data}` }
+  );
+  onUpdate(res.data.text || "");
+} 
+else if (type === "jd") {
+  const res = await api.post(
+    "/api/gemini/summary-from-jd", // ✅ matches backend route
+    { jobDescription: jobDesc }
+  );
+  onUpdate(res.data.text || "");
+}
+
+
+
+    } catch (err) {
+      console.error("Gemini API error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
+
   const handleNext = () => {
-    // resumeId is available if you later need to send it to backend
     onNext?.();
   };
 
@@ -56,7 +77,7 @@ const SummarySection = ({
           <button
             onClick={() => handleGemini("optimize")}
             className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2 rounded-xl font-semibold shadow hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-60"
-            disabled={loading}
+            disabled={loading || parentLoading}
           >
             <FaPenNib /> {loading ? "Generating..." : "Use AI Writer"}
           </button>
@@ -79,6 +100,18 @@ const SummarySection = ({
             onChange={(e) => setJobDesc(e.target.value)}
             placeholder="Paste job description to generate summary..."
           />
+        )}
+
+        {jdMode && (
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={() => handleGemini("jd")}
+              className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-teal-500 text-white px-5 py-2 rounded-xl font-semibold shadow hover:from-green-700 hover:to-teal-600 transition-all duration-200 disabled:opacity-60"
+              disabled={loading}
+            >
+              <FaPenNib /> {loading ? "Generating..." : "Generate from JD"}
+            </button>
+          </div>
         )}
 
         <div className="mt-6 flex gap-3 justify-end">

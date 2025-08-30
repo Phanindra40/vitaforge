@@ -3,11 +3,11 @@ import axios from "axios";
 
 // Create the axios instance
 const api = axios.create({
-  baseURL: "http://localhost:5000/api/gemini/generate", // change this for production
+  baseURL: "http://localhost:5000", // ✅ removed "generate"
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // if you need to send cookies with requests
+  withCredentials: true,
 });
 
 // Optional: Set token dynamically if you use auth later
