@@ -3,137 +3,262 @@ import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
 import { motion } from "framer-motion";
-import demoVideo from "../assets/vitaforge-demo.mp4.mp4";
+import { FaTwitter, FaLinkedin, FaGithub, FaEnvelope } from "react-icons/fa";
+import resumeMockup from "../assets/resume-mockup.png";
+import sampleResume from "../assets/sample resume.png";
 
+// ===== HERO BADGE =====
+const HeroBadge = () => (
+  <motion.div
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.15 }}
+    className="mb-4 flex flex-wrap gap-2 items-center justify-center md:justify-start"
+  >
+    <span className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-1 text-xs rounded-full font-semibold shadow animate-pulse">
+      🚀 AI Powered
+    </span>
+    <span className="text-sm text-gray-700">
+      Welcome to <strong className="text-purple-600">VitaForge</strong>
+    </span>
+  </motion.div>
+);
+
+// ===== HERO HEADING =====
+const HeroHeading = () => (
+  <motion.h1
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.25 }}
+    className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6"
+  >
+    Build Your Resume <br />
+    <span className="animate-shine bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 bg-clip-text text-transparent">
+      <Typewriter
+        words={["With AI", "In Minutes", "For Your Dream Job"]}
+        loop={0}
+        cursor
+        cursorStyle="|"
+        typeSpeed={80}
+        deleteSpeed={40}
+        delaySpeed={1200}
+      />
+    </span>
+  </motion.h1>
+);
+
+const shineKeyframes = `
+  @keyframes shine {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .animate-shine {
+    background-size: 200% auto;
+    animation: shine 5s linear infinite;
+  }
+`;
+
+// ===== CTA BUTTON =====
+const CtaButton = ({ onBuildResume }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.4 }}
+    className="flex items-center justify-center md:justify-start mt-6"
+  >
+    <button
+      onClick={onBuildResume}
+      className="relative group hover:scale-105 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold text-lg shadow-lg shadow-purple-300/30 transition-transform duration-300"
+    >
+      Build My Resume →
+      <span className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition" />
+    </button>
+  </motion.div>
+);
+
+// ===== HOME COMPONENT =====
 const Home = () => {
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
-
-  const handleGetStarted = () => {
+  const handleBuildResume = () =>
     navigate(isSignedIn ? "/dashboard" : "/sign-in");
-  };
-
-  const handleContact = () => {
-    navigate("/contact");
-  };
 
   return (
-    <div className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center px-4 text-center">
-
-      {/* 🎥 Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover -z-20"
-      >
-        <source src={demoVideo} type="video/mp4" />
-      </video>
-
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-black/50 -z-10" />
-
-      {/* Floating Glow Orbs */}
-      <div className="absolute top-20 left-10 w-48 h-48 bg-purple-500 rounded-full blur-3xl opacity-20 animate-pulse -z-10"></div>
-      <div className="absolute bottom-20 right-20 w-40 h-40 bg-blue-500 rounded-full blur-3xl opacity-20 animate-bounce -z-10"></div>
-      <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-pink-500 rounded-full blur-3xl opacity-20 animate-ping -z-10"></div>
-
-      {/* Badge */}
+    <div className="relative overflow-hidden min-h-screen flex flex-col bg-gray-50">
+      {/* Glow Orbs */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-4 flex flex-wrap justify-center items-center gap-2"
-      >
-        <span className="text-xs bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 rounded-full font-semibold shadow animate-pulse">
-          🚀 AI Powered
-        </span>
-        <span className="text-sm text-gray-200">
-          Welcome to <strong className="text-purple-400">VitaForge</strong>
-        </span>
-      </motion.div>
+        animate={{ opacity: [0.2, 0.35, 0.2] }}
+        transition={{ duration: 6, repeat: Infinity }}
+        className="absolute top-20 left-10 w-48 h-48 bg-blue-200 rounded-full blur-3xl opacity-30 -z-10"
+      />
+      <motion.div
+        animate={{ opacity: [0.2, 0.4, 0.2] }}
+        transition={{ duration: 8, repeat: Infinity }}
+        className="absolute bottom-20 right-20 w-40 h-40 bg-purple-200 rounded-full blur-3xl opacity-30 -z-10"
+      />
 
-      {/* Heading with Shiny Effect */}
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight mb-6"
-      >
-        Build Your Resume <br />
-        <span
-          style={{
-            background: "linear-gradient(90deg, #a78bfa, #60a5fa, #f472b6, #a78bfa)",
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            animation: "shine 6s linear infinite"
-          }}
+      {/* HERO SECTION */}
+      <div className="flex-grow flex flex-col items-center justify-center px-4 text-center">
+        <div className="max-w-7xl w-full flex flex-col md:flex-row items-center justify-between gap-10">
+          {/* Left */}
+          <div className="flex-1 text-center md:text-left">
+            <HeroBadge />
+            <HeroHeading />
+            <style>{shineKeyframes}</style>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-gray-700 text-lg sm:text-xl max-w-2xl mb-10"
+            >
+              Effortlessly craft job-winning resumes with our intelligent AI builder.
+              <br className="hidden sm:block" />
+              Fast. Smart. Tailored to your dream role.
+            </motion.p>
+            <CtaButton onBuildResume={handleBuildResume} />
+          </div>
+
+          {/* Right */}
+          <div className="flex-1 flex items-center justify-center">
+            <motion.img
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              src={resumeMockup}
+              alt="Resume Mockup"
+              className="w-full max-w-md rounded-xl shadow-lg"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* HOW IT WORKS */}
+      <section className="py-20 border-t border-gray-200 bg-white">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-14">
+          Build Your Resume in 4 Easy Steps
+        </h2>
+        <div className="max-w-6xl mx-auto grid sm:grid-cols-2 md:grid-cols-4 gap-8 px-6">
+          {[
+            { step: "1", title: "Enter Your Info", desc: "Fill in your details with ease." },
+            { step: "2", title: "Choose Template", desc: "Pick from modern ATS-friendly designs." },
+            { step: "3", title: "AI Optimization", desc: "Let AI improve your content instantly." },
+            { step: "4", title: "Download", desc: "Export your resume in PDF and share anywhere." },
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: i * 0.2 }}
+              className="p-6 bg-gradient-to-tr from-white/80 to-white/90 rounded-2xl shadow-md text-center hover:scale-105 transition transform border border-gray-200"
+            >
+              <div className="text-4xl font-extrabold text-purple-500 mb-4">
+                {item.step}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
+              <p className="text-gray-700 text-sm">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* SAMPLE RESUME */}
+      <section className="py-20 bg-gray-50 flex flex-col md:flex-row items-center gap-12 px-6 md:px-16">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="flex-1 text-center md:text-left"
         >
-          <Typewriter
-            words={["With AI", "In Minutes", "For Your Dream Job"]}
-            loop={0}
-            cursor
-            cursorStyle="|"
-            typeSpeed={80}
-            deleteSpeed={40}
-            delaySpeed={1200}
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            See What You’ll Create
+          </h2>
+          <p className="text-gray-700 max-w-md mx-auto md:mx-0">
+            Preview our sleek and professional templates designed to impress recruiters.
+          </p>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="flex-1 flex justify-center"
+        >
+          <img
+            src={sampleResume}
+            alt="Sample Resume"
+            className="rounded-xl shadow-lg max-w-2xl w-full border border-gray-200"
           />
-        </span>
-      </motion.h1>
+        </motion.div>
+      </section>
 
-      {/* Inline Keyframes for Shine */}
-      <style>
-        {`
-          @keyframes shine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
-        `}
-      </style>
+      {/* FAQ */}
+      <section className="py-16 bg-white border-t border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-6">
+            Have Questions About Writing A Great Resume?
+          </h2>
+          <p className="text-lg text-center text-gray-700 mb-12">
+            Expert answers to help you land your dream job.
+          </p>
+          <div className="space-y-6">
+            {[
+              { question: "Best resume templates?", answer: "ATS-friendly, clean, and professional templates are ideal." },
+              { question: "How to make it stand out?", answer: "Tailor to the job, use action verbs, and quantify achievements." },
+              { question: "Include summary?", answer: "Yes, provide a quick overview of qualifications and goals." },
+            ].map((faq, index) => (
+              <div
+                key={index}
+                className="p-6 bg-gray-50 rounded-xl shadow-md border border-gray-200 hover:shadow-lg hover:scale-[1.02] transition"
+              >
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+                  {faq.question}
+                </h3>
+                <p className="text-gray-700 text-sm sm:text-base">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* Subheading */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="text-gray-200 text-lg sm:text-xl max-w-2xl mb-10"
-      >
-        Effortlessly craft job-winning resumes with our intelligent AI builder.
-        <br className="hidden sm:block" />
-        Fast. Smart. Tailored to your dream role.
-      </motion.p>
-
-      {/* CTA Buttons (Glassmorphic) */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-lg shadow-xl border border-white/20"
-      >
-        <button
-          onClick={handleGetStarted}
-          className="hover:scale-105 transition-transform duration-300 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold text-lg shadow-lg"
-        >
-          Get Started →
-        </button>
-
-        <button
-          onClick={handleContact}
-          className="hover:scale-105 transition-transform duration-300 bg-white/20 backdrop-blur border border-white/30 px-8 py-3 rounded-full text-white font-medium"
-        >
-          Contact Us
-        </button>
-
-        <button className="hover:scale-105 transition-transform duration-300 flex items-center gap-2 border border-white/30 bg-white/20 backdrop-blur px-8 py-3 rounded-full font-medium text-white">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-4.596-2.65A1 1 0 009 9.383v5.233a1 1 0 001.156.986l4.596-2.65a1 1 0 000-1.784z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Watch Video
-        </button>
-      </motion.div>
+      {/* FOOTER */}
+      <footer className="relative bg-white border-t border-gray-200 text-gray-700">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 1.2 }}
+          className="absolute top-0 left-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"
+        />
+        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div>
+            <h2 className="text-2xl font-extrabold text-gray-900">VitaForge</h2>
+            <p className="mt-3 text-sm text-gray-700 max-w-sm">
+              Build ATS-friendly, AI-powered resumes in minutes. Tailored to your dream job, beautifully designed, and recruiter-approved.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
+            <ul className="space-y-3">
+              <li className="hover:text-purple-500 cursor-pointer">Home</li>
+              <li className="hover:text-purple-500 cursor-pointer">Dashboard</li>
+              <li className="hover:text-purple-500 cursor-pointer">Templates</li>
+              <li className="hover:text-purple-500 cursor-pointer">Contact</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Connect</h3>
+            <div className="flex gap-5 text-2xl">
+              <FaTwitter className="hover:text-blue-500 cursor-pointer" />
+              <FaLinkedin className="hover:text-blue-600 cursor-pointer" />
+              <FaGithub className="hover:text-gray-900 cursor-pointer" />
+              <FaEnvelope className="hover:text-red-500 cursor-pointer" />
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-gray-200 py-6 text-center text-gray-500 text-sm">
+          © {new Date().getFullYear()} VitaForge. All Rights Reserved.
+        </div>
+      </footer>
     </div>
   );
 };

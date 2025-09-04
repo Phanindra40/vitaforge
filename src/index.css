@@ -8,21 +8,26 @@
   animation: blink 1s step-start infinite;
 }
 
+/* Hide UI buttons in print */
 @media print {
-  /* hide everything first */
-  body * {
-    visibility: hidden;
+  .no-print {
+    display: none !important;
   }
-  /* show only resume preview area */
-  #resume-preview, #resume-preview * {
-    visibility: visible;
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
-  #resume-preview {
-    position: absolute;
-    left: 0;
-    top: 0;
+
+  /* Force A4 scaling */
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+
+  .resume-container {
+    transform: scale(0.9); /* adjust if content cuts */
+    transform-origin: top left;
     width: 100%;
-    color: black; /* Fallback for text color */
-    background-color: white; /* Fallback for background color */
   }
 }
