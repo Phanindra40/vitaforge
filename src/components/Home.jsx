@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { FaTwitter, FaLinkedin, FaGithub, FaEnvelope } from "react-icons/fa";
 import resumeMockup from "../assets/resume-mockup.png";
 import sampleResume from "../assets/sample resume.png";
+import homeimage from "../assets/newhome.png";
 
 // ===== HERO BADGE =====
 const HeroBadge = () => (
@@ -118,16 +119,23 @@ const Home = () => {
             <CtaButton onBuildResume={handleBuildResume} />
           </div>
 
-          {/* Right */}
-          <div className="flex-1 flex items-center justify-center">
-            <motion.img
-              initial={{ opacity: 0, scale: 0.9 }}
+          {/* Right Content */}
+          <div className="flex-1 flex items-center justify-center relative">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              src={resumeMockup}
-              alt="Resume Mockup"
-              className="w-full max-w-md rounded-xl shadow-lg"
-            />
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              whileHover={{ scale: 1.05, rotate: 2 }}
+              className="relative w-full max-w-md"
+            >
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-400 rounded-full blur-3xl opacity-50 -z-10" />
+              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-400 rounded-full blur-3xl opacity-50 -z-10" />
+              <img
+                src={homeimage}
+                alt="Hero Preview"
+                className="rounded-xl shadow-2xl border border-white/10 transform hover:scale-105 transition-transform duration-300 ease-in-out"
+              />
+            </motion.div>
           </div>
         </div>
       </div>
@@ -190,6 +198,47 @@ const Home = () => {
         </motion.div>
       </section>
 
+      {/* TEMPLATES SECTION */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-gray-100">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-10">
+            Explore Our Resume Templates
+          </h2>
+          <p className="text-lg text-center text-gray-600 mb-12">
+            Choose from a variety of professionally designed templates to make your resume stand out.
+          </p>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {[{
+              name: "Modern Professional",
+              description: "A sleek and modern design perfect for corporate roles.",
+              color: "bg-blue-500",
+            }, {
+              name: "Creative Designer",
+              description: "A vibrant template for creative professionals.",
+              color: "bg-purple-500",
+            }, {
+              name: "Minimalist",
+              description: "A clean and simple layout for all industries.",
+              color: "bg-green-500",
+            }].map((template, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+                className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 ${template.color} text-white`}
+              >
+                <h3 className="text-xl font-semibold mb-2">{template.name}</h3>
+                <p className="text-sm mb-4">{template.description}</p>
+                <button className="bg-white text-gray-800 px-4 py-2 rounded-full font-medium hover:bg-gray-200 transition">
+                  Preview Template
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="py-16 bg-white border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -204,6 +253,8 @@ const Home = () => {
               { question: "Best resume templates?", answer: "ATS-friendly, clean, and professional templates are ideal." },
               { question: "How to make it stand out?", answer: "Tailor to the job, use action verbs, and quantify achievements." },
               { question: "Include summary?", answer: "Yes, provide a quick overview of qualifications and goals." },
+              { question: "Common mistakes?", answer: "Typos, irrelevant info, and poor formatting." },
+              { question: "Optimize for ATS?", answer: "Use keywords from the job description and standard headings." },
             ].map((faq, index) => (
               <div
                 key={index}
@@ -256,7 +307,7 @@ const Home = () => {
           </div>
         </div>
         <div className="border-t border-gray-200 py-6 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} VitaForge. All Rights Reserved.
+          © {new Date().getFullYear()} VitaForge.Education purpose only.
         </div>
       </footer>
     </div>

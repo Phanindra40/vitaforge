@@ -11,7 +11,7 @@ const Header = () => {
 
   // Typing Effect
   const [typedText, setTypedText] = useState("");
-  const fullText = "VitaForge.ai";
+  const fullText = "VitaForge";
   const typingSpeed = 120;
   const pauseDuration = 1000;
   const repeatCount = 2;
