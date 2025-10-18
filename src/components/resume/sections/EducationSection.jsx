@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
-const EducationSection = ({ data, onChange, onNext, onSave, onBack, resumeId }) => {
+const EducationSection = ({ data, onChange, onNext, onSave, onBack, resumeId, sectionTitle, onSectionTitleChange }) => {
   const [educationList, setEducationList] = useState(data || []);
+  const [customTitle, setCustomTitle] = useState(sectionTitle || "EDUCATION");
 
   useEffect(() => {
     onChange(educationList);
   }, [educationList]);
+
+  useEffect(() => {
+    if (onSectionTitleChange) {
+      onSectionTitleChange(customTitle);
+    }
+  }, [customTitle, onSectionTitleChange]);
 
   const handleChange = (index, field, value) => {
     const updatedList = [...educationList];
@@ -18,8 +25,8 @@ const EducationSection = ({ data, onChange, onNext, onSave, onBack, resumeId }) 
     setEducationList([
       ...educationList,
       {
-        institute: "",
-        course: "",
+        institution: "",
+        degree: "",
         startDate: "",
         endDate: "",
         description: "",
@@ -49,7 +56,24 @@ const EducationSection = ({ data, onChange, onNext, onSave, onBack, resumeId }) 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h2 className="text-3xl font-bold mb-6 text-center text-indigo-700">Education</h2>
+      <h2 className="text-3xl font-bold mb-4 text-center text-indigo-700">Education</h2>
+
+      {/* Custom Section Title Input */}
+      <div className="mb-6 p-4 bg-white/60 rounded-xl border border-indigo-200">
+        <label className="block text-sm font-semibold text-indigo-700 mb-2">
+          📝 Customize Section Title (Optional)
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., Academic Background, Qualifications, Educational History"
+          value={customTitle}
+          onChange={(e) => setCustomTitle(e.target.value)}
+          className="w-full px-4 py-2 border border-indigo-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          This will appear as the heading for this section in your resume
+        </p>
+      </div>
 
       {educationList.map((edu, index) => (
         <motion.div
@@ -61,16 +85,16 @@ const EducationSection = ({ data, onChange, onNext, onSave, onBack, resumeId }) 
         >
           <input
             type="text"
-            placeholder="Institute Name"
-            value={edu.institute}
-            onChange={(e) => handleChange(index, "institute", e.target.value)}
+            placeholder="Institution Name"
+            value={edu.institution}
+            onChange={(e) => handleChange(index, "institution", e.target.value)}
             className="w-full px-4 py-2 border rounded-lg"
           />
           <input
             type="text"
             placeholder="Course / Degree"
-            value={edu.course}
-            onChange={(e) => handleChange(index, "course", e.target.value)}
+            value={edu.degree}
+            onChange={(e) => handleChange(index, "degree", e.target.value)}
             className="w-full px-4 py-2 border rounded-lg"
           />
           <div className="flex flex-col sm:flex-row gap-4">

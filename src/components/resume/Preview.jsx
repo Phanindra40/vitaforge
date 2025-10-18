@@ -10,6 +10,7 @@ const Preview = React.forwardRef(
       education = [],
       projects = [],
       skills = [],
+      sectionTitles = {},
       isMini = false,
     },
     ref
@@ -92,7 +93,7 @@ const Preview = React.forwardRef(
                 letterSpacing: "0.5px"
               }}
             >
-              PROFESSIONAL SUMMARY
+              {sectionTitles.summary || "PROFESSIONAL SUMMARY"}
             </h2>
             <p 
               className="text-justify leading-relaxed"
@@ -119,7 +120,7 @@ const Preview = React.forwardRef(
                 letterSpacing: "0.5px"
               }}
             >
-              PROFESSIONAL EXPERIENCE
+              {sectionTitles.experience || "PROFESSIONAL EXPERIENCE"}
             </h2>
             <div className="space-y-4">
               {experiences.map((exp, idx) => (
@@ -185,7 +186,7 @@ const Preview = React.forwardRef(
                 letterSpacing: "0.5px"
               }}
             >
-              KEY PROJECTS
+              {sectionTitles.projects || "KEY PROJECTS"}
             </h2>
             <div className="space-y-4">
               {projects.map((proj, idx) => (
@@ -209,7 +210,7 @@ const Preview = React.forwardRef(
                         fontStyle: "italic"
                       }}
                     >
-                      {proj.technologies?.join(" | ")}
+                      {proj.technologies ? proj.technologies.split(',').map(tech => tech.trim()).join(' | ') : ''}
                     </span>
                   </div>
                   <p 
@@ -240,7 +241,7 @@ const Preview = React.forwardRef(
                 letterSpacing: "0.5px"
               }}
             >
-              EDUCATION
+              {sectionTitles.education || "EDUCATION"}
             </h2>
             <div className="space-y-3">
               {education.map((edu, idx) => (
@@ -308,7 +309,7 @@ const Preview = React.forwardRef(
                 letterSpacing: "0.5px"
               }}
             >
-              CORE COMPETENCIES
+              {sectionTitles.skills || "CORE COMPETENCIES"}
             </h2>
             <div 
               className="leading-relaxed"

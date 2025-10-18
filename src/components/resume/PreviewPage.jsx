@@ -87,6 +87,7 @@ const PreviewPage = () => {
             projects={data.projects}
             education={data.education}
             skills={data.skills}
+            sectionTitles={data.sectionTitles}
           />
         </div>
       </div>

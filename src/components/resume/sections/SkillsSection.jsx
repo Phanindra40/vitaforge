@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const SkillsSection = ({ data, onChange, onSave, onBack, resumeId }) => {
+const SkillsSection = ({ data, onChange, onSave, onBack, resumeId, sectionTitle, onSectionTitleChange }) => {
   const [skillsList, setSkillsList] = useState(data || []);
+  const [customTitle, setCustomTitle] = useState(sectionTitle || "CORE COMPETENCIES");
   const inputRefs = useRef([]);
 
   useEffect(() => {
     onChange(skillsList);
   }, [skillsList]);
+
+  useEffect(() => {
+    if (onSectionTitleChange) {
+      onSectionTitleChange(customTitle);
+    }
+  }, [customTitle, onSectionTitleChange]);
 
   const handleChange = (index, value) => {
     const updated = [...skillsList];
@@ -49,12 +56,29 @@ const SkillsSection = ({ data, onChange, onSave, onBack, resumeId }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-4xl font-extrabold mb-8 text-center text-indigo-700 tracking-tight drop-shadow">
+      <h2 className="text-4xl font-extrabold mb-6 text-center text-indigo-700 tracking-tight drop-shadow">
         Final Step: <span className="text-blue-700">Your Skills</span>
       </h2>
-      <p className="text-center text-gray-500 mb-8">
+      <p className="text-center text-gray-500 mb-4">
         List your top skills. These will be highlighted on your resume.
       </p>
+      
+      {/* Custom Section Title Input */}
+      <div className="mb-6 p-4 bg-white/60 rounded-xl border border-blue-200">
+        <label className="block text-sm font-semibold text-indigo-700 mb-2">
+          📝 Customize Section Title (Optional)
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., Technical Skills, Core Competencies, Expertise"
+          value={customTitle}
+          onChange={(e) => setCustomTitle(e.target.value)}
+          className="w-full px-4 py-2 border border-blue-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          This will appear as the heading for this section in your resume
+        </p>
+      </div>
 
       <AnimatePresence>
         {skillsList.length === 0 && (

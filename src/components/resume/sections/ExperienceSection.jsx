@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import ErrorBoundary from "../ErrorBoundary";
 import { motion } from "framer-motion";
@@ -10,8 +10,18 @@ const ExperienceSection = ({
   loading,
   onNext,
   onBack,
-  resumeId, // passed, not used for now
+  resumeId,
+  sectionTitle,
+  onSectionTitleChange,
 }) => {
+  const [customTitle, setCustomTitle] = useState(sectionTitle || "PROFESSIONAL EXPERIENCE");
+
+  useEffect(() => {
+    if (onSectionTitleChange) {
+      onSectionTitleChange(customTitle);
+    }
+  }, [customTitle, onSectionTitleChange]);
+
   const handleChange = (index, field, value) => {
     const updated = data.map((exp, i) =>
       i === index ? { ...exp, [field]: value } : exp
@@ -23,7 +33,7 @@ const ExperienceSection = ({
     const updated = [
       ...data,
       {
-        jobTitle: "",
+        role: "",
         company: "",
         startDate: "",
         endDate: "",
@@ -47,9 +57,26 @@ const ExperienceSection = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-2xl font-extrabold text-gradient bg-gradient-to-r from-green-600 to-blue-500 bg-clip-text text-transparent mb-6 text-center">
+        <h2 className="text-2xl font-extrabold text-gradient bg-gradient-to-r from-green-600 to-blue-500 bg-clip-text text-transparent mb-4 text-center">
           Experience
         </h2>
+
+        {/* Custom Section Title Input */}
+        <div className="mb-6 p-4 bg-white/60 rounded-xl border border-green-200">
+          <label className="block text-sm font-semibold text-green-700 mb-2">
+            📝 Customize Section Title (Optional)
+          </label>
+          <input
+            type="text"
+            placeholder="e.g., Work Experience, Professional Background, Career History"
+            value={customTitle}
+            onChange={(e) => setCustomTitle(e.target.value)}
+            className="w-full px-4 py-2 border border-green-200 rounded-lg shadow-sm focus:ring-2 focus:ring-green-200 focus:border-green-400 transition"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            This will appear as the heading for this section in your resume
+          </p>
+        </div>
 
         {data.map((exp, index) => (
           <motion.div
@@ -63,8 +90,8 @@ const ExperienceSection = ({
               <input
                 className="px-4 py-2 border rounded-lg"
                 placeholder="Job Title"
-                value={exp.jobTitle}
-                onChange={(e) => handleChange(index, "jobTitle", e.target.value)}
+                value={exp.role}
+                onChange={(e) => handleChange(index, "role", e.target.value)}
               />
               <input
                 className="px-4 py-2 border rounded-lg"
