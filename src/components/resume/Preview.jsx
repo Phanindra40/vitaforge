@@ -11,184 +11,316 @@ const Preview = React.forwardRef(
       projects = [],
       skills = [],
       isMini = false,
-      handleDownloadPDF,
     },
     ref
   ) => {
     return (
       <div
         ref={ref}
-        className={`${
+        className={`resume-content ${
           isMini
-            ? "bg-gray-50 shadow-md rounded-xl p-6"
-            : "bg-white text-black max-w-[850px] mx-auto p-10 shadow-md rounded-lg"
-        } border border-gray-300`}
+            ? "shadow-lg p-4 text-xs"
+            : "mx-auto"
+        }`}
         style={{
-          fontFamily: "Arial, sans-serif",
-          lineHeight: "1.6",
+          fontFamily: "'Times New Roman', serif",
+          lineHeight: "1.4",
+          fontSize: isMini ? "10px" : "12px",
+          width: isMini ? "auto" : "794px", // A4 width in pixels at 96 DPI
+          minHeight: isMini ? "auto" : "1123px", // A4 height in pixels at 96 DPI
+          padding: isMini ? "16px" : "40px 30px",
+          color: "#000000",
+          backgroundColor: "#ffffff",
+          boxSizing: "border-box",
+          border: "none",
+          outline: "none",
+          margin: "0",
         }}
       >
         {/* Header Section */}
-        <header className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {personalInfo.FullName || "Your Name"}
+        <header className="text-center mb-6 border-b-2 border-gray-800 pb-4">
+          <h1 
+            className="text-2xl font-bold mb-2 uppercase tracking-wide"
+            style={{ 
+              fontSize: isMini ? "14px" : "20px",
+              fontWeight: "bold",
+              color: "#000000",
+              letterSpacing: "1px"
+            }}
+          >
+            {personalInfo.FullName || "YOUR NAME"}
           </h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <div 
+            className="text-sm"
+            style={{ 
+              fontSize: isMini ? "8px" : "11px",
+              color: "#333333"
+            }}
+          >
             {personalInfo.Email && (
-              <a
-                href={`mailto:${personalInfo.Email}`}
-                className="underline hover:text-blue-600"
-              >
+              <span className="mr-3">
                 {personalInfo.Email}
-              </a>
+              </span>
             )}
-            {personalInfo.Phone && <span> • {personalInfo.Phone}</span>}
+            {personalInfo.Phone && (
+              <span className="mr-3">
+                {personalInfo.Phone}
+              </span>
+            )}
             {personalInfo.LinkedIn && (
-              <span>
-                {" "}
-                •{" "}
-                <a
-                  href={personalInfo.LinkedIn}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-blue-600"
-                >
-                  LinkedIn
-                </a>
+              <span className="mr-3">
+                LinkedIn: {personalInfo.LinkedIn.replace(/https?:\/\/(www\.)?/, '')}
               </span>
             )}
             {personalInfo.GitHub && (
               <span>
-                {" "}
-                •{" "}
-                <a
-                  href={personalInfo.GitHub}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-blue-600"
-                >
-                  GitHub
-                </a>
+                GitHub: {personalInfo.GitHub.replace(/https?:\/\/(www\.)?/, '')}
               </span>
             )}
-          </p>
+          </div>
         </header>
 
-        {/* Summary Section */}
+        {/* Professional Summary Section */}
         {summary && (
-          <section className="mb-8">
-            <h2 className="text-lg font-semibold text-blue-700 border-b-2 border-blue-100 pb-1 mb-3">
-              Professional Summary
+          <section className="mb-6">
+            <h2 
+              className="text-base font-bold mb-3 uppercase border-b border-gray-600 pb-1"
+              style={{ 
+                fontSize: isMini ? "10px" : "14px",
+                fontWeight: "bold",
+                color: "#000000",
+                letterSpacing: "0.5px"
+              }}
+            >
+              PROFESSIONAL SUMMARY
             </h2>
-            <p className="text-gray-800 text-sm leading-relaxed">{summary}</p>
+            <p 
+              className="text-justify leading-relaxed"
+              style={{ 
+                fontSize: isMini ? "8px" : "12px",
+                lineHeight: "1.4",
+                color: "#000000"
+              }}
+            >
+              {summary}
+            </p>
           </section>
         )}
 
         {/* Experience Section */}
         {experiences.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-lg font-semibold text-blue-700 border-b-2 border-blue-100 pb-1 mb-3">
-              Experience
+          <section className="mb-6">
+            <h2 
+              className="text-base font-bold mb-3 uppercase border-b border-gray-600 pb-1"
+              style={{ 
+                fontSize: isMini ? "10px" : "14px",
+                fontWeight: "bold",
+                color: "#000000",
+                letterSpacing: "0.5px"
+              }}
+            >
+              PROFESSIONAL EXPERIENCE
             </h2>
-            <ul className="space-y-5">
+            <div className="space-y-4">
               {experiences.map((exp, idx) => (
-                <li key={idx}>
-                  <div className="flex justify-between text-sm font-medium text-gray-900">
-                    <span>{exp.company || "Company Name"}</span>
-                    <span className="text-gray-500">
-                      {exp.startDate} – {exp.endDate || "Present"}
+                <div key={idx} className="mb-4">
+                  <div className="flex justify-between items-start mb-1">
+                    <div>
+                      <h3 
+                        className="font-bold"
+                        style={{ 
+                          fontSize: isMini ? "9px" : "13px",
+                          fontWeight: "bold",
+                          color: "#000000"
+                        }}
+                      >
+                        {exp.role || "Position Title"}
+                      </h3>
+                      <p 
+                        className="font-semibold"
+                        style={{ 
+                          fontSize: isMini ? "8px" : "11px",
+                          fontWeight: "600",
+                          color: "#333333"
+                        }}
+                      >
+                        {exp.company || "Company Name"}
+                      </p>
+                    </div>
+                    <span 
+                      className="text-right font-medium"
+                      style={{ 
+                        fontSize: isMini ? "8px" : "11px",
+                        color: "#333333"
+                      }}
+                    >
+                      {exp.startDate} - {exp.endDate || "Present"}
                     </span>
                   </div>
-                  <div className="text-sm italic text-gray-700">{exp.role}</div>
-                  <p className="text-sm text-gray-800 mt-1">
+                  <p 
+                    className="text-justify leading-relaxed"
+                    style={{ 
+                      fontSize: isMini ? "8px" : "11px",
+                      lineHeight: "1.3",
+                      color: "#000000"
+                    }}
+                  >
                     {exp.description}
                   </p>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
         )}
 
         {/* Projects Section */}
         {projects.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-lg font-semibold text-blue-700 border-b-2 border-blue-100 pb-1 mb-3">
-              Projects
+          <section className="mb-6">
+            <h2 
+              className="text-base font-bold mb-3 uppercase border-b border-gray-600 pb-1"
+              style={{ 
+                fontSize: isMini ? "10px" : "14px",
+                fontWeight: "bold",
+                color: "#000000",
+                letterSpacing: "0.5px"
+              }}
+            >
+              KEY PROJECTS
             </h2>
-            <ul className="space-y-5">
+            <div className="space-y-4">
               {projects.map((proj, idx) => (
-                <li key={idx}>
-                  <div className="flex justify-between text-sm font-medium text-gray-900">
-                    <span>{proj.name || "Project Name"}</span>
-                    <span className="text-gray-500">
-                      {proj.technologies?.join(", ")}
+                <div key={idx} className="mb-4">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 
+                      className="font-bold"
+                      style={{ 
+                        fontSize: isMini ? "9px" : "13px",
+                        fontWeight: "bold",
+                        color: "#000000"
+                      }}
+                    >
+                      {proj.name || "Project Name"}
+                    </h3>
+                    <span 
+                      className="text-right"
+                      style={{ 
+                        fontSize: isMini ? "8px" : "10px",
+                        color: "#666666",
+                        fontStyle: "italic"
+                      }}
+                    >
+                      {proj.technologies?.join(" | ")}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-800 mt-1">
+                  <p 
+                    className="text-justify leading-relaxed"
+                    style={{ 
+                      fontSize: isMini ? "8px" : "11px",
+                      lineHeight: "1.3",
+                      color: "#000000"
+                    }}
+                  >
                     {proj.description}
                   </p>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
         )}
 
         {/* Education Section */}
         {education.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-lg font-semibold text-blue-700 border-b-2 border-blue-100 pb-1 mb-3">
-              Education
+          <section className="mb-6">
+            <h2 
+              className="text-base font-bold mb-3 uppercase border-b border-gray-600 pb-1"
+              style={{ 
+                fontSize: isMini ? "10px" : "14px",
+                fontWeight: "bold",
+                color: "#000000",
+                letterSpacing: "0.5px"
+              }}
+            >
+              EDUCATION
             </h2>
-            <ul className="space-y-5">
+            <div className="space-y-3">
               {education.map((edu, idx) => (
-                <li key={idx}>
-                  <div className="flex justify-between text-sm font-medium text-gray-900">
-                    <span>{edu.institution || "Institution"}</span>
-                    <span className="text-gray-500">
-                      {edu.startDate} – {edu.endDate}
+                <div key={idx} className="mb-3">
+                  <div className="flex justify-between items-start mb-1">
+                    <div>
+                      <h3 
+                        className="font-bold"
+                        style={{ 
+                          fontSize: isMini ? "9px" : "13px",
+                          fontWeight: "bold",
+                          color: "#000000"
+                        }}
+                      >
+                        {edu.degree || "Degree"}
+                      </h3>
+                      <p 
+                        className="font-semibold"
+                        style={{ 
+                          fontSize: isMini ? "8px" : "11px",
+                          fontWeight: "600",
+                          color: "#333333"
+                        }}
+                      >
+                        {edu.institution || "Institution Name"}
+                      </p>
+                    </div>
+                    <span 
+                      className="text-right"
+                      style={{ 
+                        fontSize: isMini ? "8px" : "11px",
+                        color: "#333333"
+                      }}
+                    >
+                      {edu.startDate} - {edu.endDate}
                     </span>
                   </div>
-                  <div className="text-sm italic text-gray-700">
-                    {edu.degree}
-                  </div>
-                  <p className="text-sm text-gray-800 mt-1">
-                    {edu.description}
-                  </p>
-                </li>
+                  {edu.description && (
+                    <p 
+                      className="text-justify"
+                      style={{ 
+                        fontSize: isMini ? "8px" : "11px",
+                        lineHeight: "1.3",
+                        color: "#000000"
+                      }}
+                    >
+                      {edu.description}
+                    </p>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
         )}
 
         {/* Skills Section */}
         {skills.length > 0 && (
           <section>
-            <h2 className="text-lg font-semibold text-blue-700 border-b-2 border-blue-100 pb-1 mb-3">
-              Skills
+            <h2 
+              className="text-base font-bold mb-3 uppercase border-b border-gray-600 pb-1"
+              style={{ 
+                fontSize: isMini ? "10px" : "14px",
+                fontWeight: "bold",
+                color: "#000000",
+                letterSpacing: "0.5px"
+              }}
+            >
+              CORE COMPETENCIES
             </h2>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill, idx) => (
-                <span
-                  key={idx}
-                  className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full"
-                >
-                  {skill}
-                </span>
-              ))}
+            <div 
+              className="leading-relaxed"
+              style={{ 
+                fontSize: isMini ? "8px" : "11px",
+                lineHeight: "1.4",
+                color: "#000000"
+              }}
+            >
+              {skills.join(" • ")}
             </div>
           </section>
-        )}
-
-        {/* Download Button */}
-        {!isMini && handleDownloadPDF && (
-          <div className="flex justify-end mt-6">
-            <button
-              onClick={handleDownloadPDF}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-300"
-            >
-              💾 Download PDF
-            </button>
-          </div>
         )}
       </div>
     );

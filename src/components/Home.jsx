@@ -150,7 +150,7 @@ const Home = () => {
             { step: "1", title: "Enter Your Info", desc: "Fill in your details with ease." },
             { step: "2", title: "Choose Template", desc: "Pick from modern ATS-friendly designs." },
             { step: "3", title: "AI Optimization", desc: "Let AI improve your content instantly." },
-            { step: "4", title: "Download", desc: "Export your resume in PDF and share anywhere." },
+            { step: "4", title: "Download", desc: "Export your professional resume in high-quality PDF format." },
           ].map((item, i) => (
             <motion.div
               key={i}

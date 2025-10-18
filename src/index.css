@@ -1,3 +1,5 @@
+/* Import professional fonts first */
+@import url('https://fonts.googleapis.com/css2?family=Times+New+Roman:wght@400;700&display=swap');
 @import "tailwindcss";
 
 @keyframes blink {
@@ -6,6 +8,19 @@
 }
 .animate-blink {
   animation: blink 1s step-start infinite;
+}
+
+/* Resume content isolation */
+.resume-content {
+  background: #ffffff !important;
+  color: #000000 !important;
+  isolation: isolate;
+  contain: layout style paint;
+}
+
+.resume-content * {
+  background: transparent !important;
+  color: inherit !important;
 }
 
 /* Hide UI buttons in print */
@@ -17,17 +32,66 @@
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    margin: 0;
+    padding: 0;
   }
 
-  /* Force A4 scaling */
+  /* Enhanced print scaling for A4 */
   @page {
     size: A4;
-    margin: 20mm;
+    margin: 0.5in;
   }
 
-  .resume-container {
-    transform: scale(0.9); /* adjust if content cuts */
-    transform-origin: top left;
+  .resume-container, .resume-content {
+    transform: scale(1) !important;
+    transform-origin: top left !important;
+    width: 100% !important;
+    max-width: none !important;
+    font-family: 'Times New Roman', serif !important;
+    line-height: 1.4 !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Ensure proper spacing for print */
+  .resume-print-area {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Enhanced text rendering for print */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    box-sizing: border-box;
+  }
+
+  /* Prevent page breaks in important sections */
+  .section-break-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Hide all other content when printing */
+  body * {
+    visibility: hidden;
+  }
+
+  .resume-content, .resume-content * {
+    visibility: visible;
+  }
+
+  .resume-content {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 100%;
   }
 }

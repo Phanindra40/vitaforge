@@ -11,9 +11,6 @@ import SkillsSection from "./sections/SkillsSection";
 import Preview from "./Preview";
 import ErrorBoundary from "./ErrorBoundary";
 
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-
 const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
   const location = useLocation();
   const stateData = location.state || {};
@@ -41,6 +38,34 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
   const [education, setEducation] = useState([]);
   const [skills, setSkills] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Simple browser print function
+  const handleBrowserPrint = () => {
+    try {
+      console.log("Opening browser print dialog...");
+      
+      // Temporarily hide non-print elements
+      const noPrintElements = document.querySelectorAll('.no-print');
+      noPrintElements.forEach(el => el.style.display = 'none');
+      
+      // Focus on the resume element
+      if (resumeRef.current) {
+        resumeRef.current.focus();
+      }
+      
+      // Trigger browser print
+      window.print();
+      
+      // Restore hidden elements after a short delay
+      setTimeout(() => {
+        noPrintElements.forEach(el => el.style.display = '');
+      }, 1000);
+      
+    } catch (error) {
+      console.error("Browser print error:", error);
+      alert("Unable to open print dialog. Please use Ctrl+P manually.");
+    }
+  };
 
   // Initialize resume
   useEffect(() => {
@@ -86,57 +111,6 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
-  // Download PDF function with multipage support
-  const handleDownloadPDF = async () => {
-    if (!resumeRef.current) return;
-
-    // Save original class
-    const originalClass = resumeRef.current.className;
-
-    // Remove gradient / Tailwind classes and apply fallback styles
-    resumeRef.current.className = "bg-white text-black max-w-[800px] mx-auto";
-    resumeRef.current.style.color = "black"; // Ensure text color is supported
-    resumeRef.current.style.backgroundColor = "white"; // Ensure background color is supported
-
-    try {
-      const canvas = await html2canvas(resumeRef.current, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const imgProps = pdf.getImageProperties(imgData);
-      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      pdf.save(
-        (personalInfo.FullName
-          ? personalInfo.FullName.replace(/\s+/g, "_")
-          : "VitaForge_Resume") + ".pdf"
-      );
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    } finally {
-      // Restore original classes and styles
-      resumeRef.current.className = originalClass;
-      resumeRef.current.style.color = ""; // Reset text color
-      resumeRef.current.style.backgroundColor = ""; // Reset background color
-    }
-  };
-
   if (isLoading) return null;
 
   return (
@@ -145,7 +119,7 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
         {/* Main form */}
         <div className="w-full md:w-2/3">
           <h1 className="text-3xl font-bold text-purple-700 mb-4">
-            📝 {resumeName || "Build Your Resume"}
+            {resumeName || "Build Your Professional Resume"}
           </h1>
 
           {/* Progress bar */}
@@ -237,16 +211,42 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
             />
           )}
           {step === 7 && (
-            <Preview
-              ref={resumeRef} // For PDF download
-              personalInfo={personalInfo}
-              summary={summary}
-              experiences={experiences}
-              projects={projects}
-              education={education}
-              skills={skills}
-              handleDownloadPDF={handleDownloadPDF} // pass button
-            />
+            <div className="space-y-6">
+              {/* Download Button - Print as PDF (Most Reliable) */}
+              <div className="no-print flex justify-end mb-6">
+                <button
+                  onClick={handleBrowserPrint}
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition duration-300 flex items-center gap-2 text-lg"
+                  title="Opens browser print dialog - save as PDF"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Download PDF
+                </button>
+              </div>
+              
+              {/* Resume Preview Container */}
+              <div 
+                className="bg-white p-0 border-0"
+                style={{
+                  backgroundColor: '#ffffff',
+                  margin: '0 auto',
+                  maxWidth: '794px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <Preview
+                  ref={resumeRef} // For PDF download
+                  personalInfo={personalInfo}
+                  summary={summary}
+                  experiences={experiences}
+                  projects={projects}
+                  education={education}
+                  skills={skills}
+                />
+              </div>
+            </div>
           )}
         </div>
 
