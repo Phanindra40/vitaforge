@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import StorageManager from "../utils/storage";
 import { NotificationManager } from "../utils/notifications.jsx";
 import { CookieManager } from "../utils/cookies";
-import NotificationTest from './NotificationTest'; // Added for testing
 
 const Dashboard = () => {
   const [showDialog, setShowDialog] = useState(false);
@@ -274,9 +273,6 @@ const Dashboard = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {/* Temporary: Cross-platform notification test - Remove after testing */}
-      <NotificationTest />
     </div>
   );
 };
