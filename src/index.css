@@ -23,6 +23,169 @@
   color: inherit !important;
 }
 
+/* Responsive Toast Notification Styles */
+.notification-container {
+  z-index: 9999 !important;
+}
+
+/* Mobile toast optimizations */
+@media (max-width: 768px) {
+  .toast-mobile {
+    transform: scale(1) !important;
+    max-width: 90vw !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Ensure toasts don't interfere with mobile UI */
+  .notification-container {
+    top: 60px !important; /* Below mobile header */
+    bottom: 80px !important; /* Above mobile footer/nav */
+    left: 8px !important;
+    right: 8px !important;
+  }
+  
+  /* Faster animations on mobile for better performance */
+  .toast-mobile > div {
+    animation-duration: 0.2s !important;
+  }
+}
+
+/* Tablet toast optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .toast-tablet {
+    max-width: 380px !important;
+  }
+  
+  .notification-container {
+    top: 20px !important;
+    right: 20px !important;
+  }
+}
+
+/* Desktop toast optimizations */
+@media (min-width: 1025px) {
+  .toast-desktop {
+    max-width: 420px !important;
+  }
+  
+  /* Smooth animations for desktop */
+  .toast-desktop > div {
+    animation-duration: 0.4s !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .notification-container div {
+    border: 2px solid currentColor !important;
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .notification-container div {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .toast-reduced-motion {
+    animation: none !important;
+    transition: opacity 0.1s ease !important;
+  }
+}
+
+/* Enhanced animation classes */
+.toast-animated > div {
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.toast-touch {
+  /* Larger touch targets for mobile */
+  min-height: 44px !important;
+}
+
+.toast-mouse {
+  /* Optimized for cursor interaction */
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.toast-mouse:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Portrait vs landscape optimizations */
+.toast-portrait {
+  /* Better vertical spacing in portrait */
+  margin-bottom: 8px !important;
+}
+
+.toast-landscape {
+  /* Optimized for landscape viewing */
+  margin-bottom: 4px !important;
+  max-height: 60px !important;
+}
+
+/* Additional responsive utilities */
+.toast-no-animation {
+  animation: none !important;
+  transition: opacity 0.1s ease !important;
+}
+
+/* Landscape phone optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .notification-container {
+    top: 10px !important;
+    bottom: 10px !important;
+  }
+  
+  .toast-mobile {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+  
+  .toast-landscape {
+    max-height: 50px !important;
+    padding: 8px 12px !important;
+  }
+}
+
+/* Prevent notification overlap with fixed headers */
+.notification-container {
+  pointer-events: none;
+}
+
+.notification-container > div {
+  pointer-events: all;
+}
+
+/* Safe area support for modern devices (iPhone notch, etc.) */
+@supports (padding-top: env(safe-area-inset-top)) {
+  @media (max-width: 768px) {
+    .notification-container {
+      top: calc(60px + env(safe-area-inset-top)) !important;
+      left: calc(8px + env(safe-area-inset-left)) !important;
+      right: calc(8px + env(safe-area-inset-right)) !important;
+      bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    }
+  }
+}
+
+/* Print mode preparation */
+body.print-mode {
+  overflow: hidden;
+}
+
+body.print-mode > *:not(.print-container) {
+  display: none !important;
+}
+
+body.print-mode .print-container {
+  display: block !important;
+}
+
 /* Hide UI buttons in print */
 @media print {
   .no-print {
@@ -34,6 +197,7 @@
     print-color-adjust: exact;
     margin: 0;
     padding: 0;
+    background: white !important;
   }
 
   /* Enhanced print scaling for A4 */
@@ -42,12 +206,31 @@
     margin: 0.5in;
   }
 
-  .resume-container, .resume-content {
-    transform: scale(1) !important;
-    transform-origin: top left !important;
+  /* Hide everything except print container */
+  body > *:not(.print-container) {
+    display: none !important;
+  }
+
+  /* Show only print container content */
+  .print-container {
+    display: block !important;
+    position: static !important;
+    visibility: visible !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Make sure resume content is visible and properly styled */
+  .resume-content, .print-container .resume-content {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    transform: none !important;
     width: 100% !important;
     max-width: none !important;
     font-family: 'Times New Roman', serif !important;
+    font-size: 12px !important;
     line-height: 1.4 !important;
     color: #000000 !important;
     background: #ffffff !important;
@@ -57,12 +240,13 @@
     border: none !important;
   }
 
-  /* Ensure proper spacing for print */
-  .resume-print-area {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: white !important;
-    color: black !important;
+  /* Ensure all resume content children are visible */
+  .resume-content *, .print-container * {
+    visibility: visible !important;
+    color: #000000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 
   /* Enhanced text rendering for print */
@@ -79,19 +263,20 @@
     break-inside: avoid;
   }
 
-  /* Hide all other content when printing */
-  body * {
-    visibility: hidden;
+  /* Specific print optimizations */
+  h1, h2, h3 {
+    color: #000000 !important;
+    font-weight: bold !important;
   }
 
-  .resume-content, .resume-content * {
-    visibility: visible;
+  /* Ensure proper spacing */
+  p, div, section {
+    margin-bottom: 8px !important;
   }
 
-  .resume-content {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+  /* Force show important elements */
+  header, section, .resume-content > * {
+    display: block !important;
+    visibility: visible !important;
   }
 }

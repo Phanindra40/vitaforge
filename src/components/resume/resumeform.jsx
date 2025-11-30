@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import Confetti from 'react-confetti';
 
 import PersonalInfoSection from "./sections/PersonalInfoSection";
 import SummarySection from "./sections/SummarySection";
@@ -10,6 +11,9 @@ import EducationSection from "./sections/EducationSection";
 import SkillsSection from "./sections/SkillsSection";
 import Preview from "./Preview";
 import ErrorBoundary from "./ErrorBoundary";
+import StorageManager from "../../utils/storage";
+import { NotificationManager } from "../../utils/notifications.jsx";
+import { CookieManager } from "../../utils/cookies";
 
 const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
   const location = useLocation();
@@ -45,32 +49,88 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
     skills: "CORE COMPETENCIES"
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  // Simple browser print function
+  // AI suggestion handler (placeholder for now since no backend)
+  const handleGeminiSuggest = (type, index, data) => {
+    console.log("AI suggestion requested:", { type, index, data });
+    // This would integrate with your AI backend when available
+    NotificationManager.info(
+      "🚀 AI suggestions feature coming soon! This will help optimize your resume content.",
+      { duration: 4000 }
+    );
+  };
+
+  // Enhanced browser print function
   const handleBrowserPrint = () => {
     try {
       console.log("Opening browser print dialog...");
       
-      // Temporarily hide non-print elements
-      const noPrintElements = document.querySelectorAll('.no-print');
-      noPrintElements.forEach(el => el.style.display = 'none');
+      // Try to find any resume content
+      let resumeContent = resumeRef.current;
       
-      // Focus on the resume element
-      if (resumeRef.current) {
-        resumeRef.current.focus();
+      // If no ref, try to find resume content by class
+      if (!resumeContent) {
+        resumeContent = document.querySelector('.resume-content');
       }
+      
+      if (!resumeContent) {
+        NotificationManager.error(
+          "Resume content not found. Please make sure you have filled in some information.",
+          { duration: 4000 }
+        );
+        return;
+      }
+
+      console.log("Resume content found:", resumeContent);
+
+      // Create a temporary print container
+      const printContainer = document.createElement('div');
+      printContainer.className = 'print-container';
+      printContainer.style.display = 'none';
+      
+      // Clone the resume content
+      const resumeClone = resumeContent.cloneNode(true);
+      resumeClone.style.display = 'block';
+      resumeClone.style.visibility = 'visible';
+      resumeClone.style.position = 'static';
+      resumeClone.style.transform = 'none';
+      resumeClone.style.fontSize = '12px';
+      resumeClone.style.fontFamily = 'Times New Roman, serif';
+      resumeClone.style.color = '#000000';
+      resumeClone.style.background = '#ffffff';
+      resumeClone.style.padding = '20px';
+      resumeClone.style.width = '100%';
+      resumeClone.style.maxWidth = 'none';
+      resumeClone.classList.remove('shadow-lg', 'p-4', 'text-xs');
+      
+      printContainer.appendChild(resumeClone);
+      document.body.appendChild(printContainer);
+      
+      // Add print-ready class to body
+      document.body.classList.add('print-mode');
+      
+      // Show print container
+      printContainer.style.display = 'block';
+      
+      // Show print ready notification
+      NotificationManager.printReady();
       
       // Trigger browser print
       window.print();
       
-      // Restore hidden elements after a short delay
+      // Clean up after print dialog
       setTimeout(() => {
-        noPrintElements.forEach(el => el.style.display = '');
+        document.body.classList.remove('print-mode');
+        document.body.removeChild(printContainer);
       }, 1000);
       
     } catch (error) {
       console.error("Browser print error:", error);
-      alert("Unable to open print dialog. Please use Ctrl+P manually.");
+      NotificationManager.error(
+        `Print failed: ${error.message}. Please try using Ctrl+P manually.`,
+        { duration: 6000 }
+      );
     }
   };
 
@@ -79,11 +139,18 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
     const id = propResumeId || stateData.resumeId || uuidv4();
     setResumeId(id);
 
-    const allResumes = JSON.parse(localStorage.getItem("resumeData")) || {};
-    const data = allResumes[id];
+    const data = StorageManager.getResumeData(id);
 
     if (data) {
-      setPersonalInfo({ ...personalInfo, ...data.personalInfo });
+      setPersonalInfo({
+        FullName: "",
+        Email: "",
+        Phone: "",
+        GitHub: "",
+        LinkedIn: "",
+        customFields: [],
+        ...data.personalInfo
+      });
       setSummary(data.summary || "");
       setExperiences(data.experiences || []);
       setProjects(data.projects || []);
@@ -102,7 +169,7 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
     setIsLoading(false);
   }, [propResumeId, stateData.resumeId]);
 
-  // Save to localStorage
+  // Save to localStorage using StorageManager
   const saveResume = useCallback(
     (updatedFields = {}) => {
       if (!resumeId || isLoading) return;
@@ -117,20 +184,60 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
         resumeName,
         ...updatedFields,
       };
-      const allResumes = JSON.parse(localStorage.getItem("resumeData")) || {};
-      allResumes[resumeId] = currentData;
-      localStorage.setItem("resumeData", JSON.stringify(allResumes));
+      
+      const success = StorageManager.saveResumeData(resumeId, currentData);
+      
+      if (success && CookieManager.getPreferences().notifications.showSuccess) {
+        // Show subtle save confirmation
+        NotificationManager.success(
+          "💾 Changes saved automatically",
+          { duration: 2000 }
+        );
+      }
     },
     [resumeId, isLoading, personalInfo, summary, experiences, projects, education, skills, sectionTitles, resumeName]
   );
 
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
+  const nextStep = () => {
+    const newStep = Math.min(step + 1, totalSteps);
+    setStep(newStep);
+    
+    // Celebrate when reaching the final step
+    if (newStep === totalSteps) {
+      // Show confetti
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000); // Stop after 5 seconds
+      
+      setTimeout(() => {
+        NotificationManager.resumeCompleted(resumeName);
+        
+        // Show tip about printing
+        setTimeout(() => {
+          NotificationManager.tipOfTheDay(
+            "Your resume is complete! Use the 'Print Resume' button to download or print your professional resume."
+          );
+        }, 2000);
+      }, 500);
+    }
+  };
+  
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   if (isLoading) return null;
 
   return (
     <ErrorBoundary>
+      {/* Confetti for celebration */}
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          numberOfPieces={200}
+          gravity={0.1}
+          colors={['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444']}
+        />
+      )}
+      
       <div className="flex flex-col md:flex-row gap-6 bg-gradient-to-tr from-purple-100 to-white min-h-screen p-6">
         {/* Main form */}
         <div className="w-full md:w-2/3">
@@ -184,6 +291,8 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
                 setExperiences(val);
                 saveResume({ experiences: val });
               }}
+              onGeminiSuggest={handleGeminiSuggest}
+              loading={false}
               onNext={nextStep}
               onBack={prevStep}
               resumeId={resumeId}
@@ -202,6 +311,8 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
                 setProjects(val);
                 saveResume({ projects: val });
               }}
+              onGeminiSuggest={handleGeminiSuggest}
+              loading={false}
               onNext={nextStep}
               onBack={prevStep}
               resumeId={resumeId}
@@ -362,6 +473,7 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
               {/* Desktop preview - shows only on desktop */}
               <div className="hidden md:block">
                 <Preview
+                  ref={step !== 7 ? resumeRef : null}
                   personalInfo={personalInfo}
                   summary={summary}
                   experiences={experiences}

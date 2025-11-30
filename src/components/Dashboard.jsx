@@ -2,28 +2,39 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
+import StorageManager from "../utils/storage";
+import { NotificationManager } from "../utils/notifications.jsx";
+import { CookieManager } from "../utils/cookies";
+import NotificationTest from './NotificationTest'; // Added for testing
 
 const Dashboard = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [resumeName, setResumeName] = useState("");
   const [resumes, setResumes] = useState([]);
+  const [storageInfo, setStorageInfo] = useState(StorageManager.getStorageInfo());
   const inputRef = useRef(null);
 
   const navigate = useNavigate();
 
   // Load resumes from localStorage
   useEffect(() => {
-    try {
-      const storedResumes = JSON.parse(localStorage.getItem("resumes")) || [];
-      setResumes(storedResumes);
-    } catch (error) {
-      console.error("Failed to load resumes:", error);
+    const storedResumes = StorageManager.getAllResumes();
+    setResumes(storedResumes);
+    setStorageInfo(StorageManager.getStorageInfo());
+
+    // Show welcome tip for new users
+    if (storedResumes.length === 0 && CookieManager.hasConsent()) {
+      setTimeout(() => {
+        NotificationManager.tipOfTheDay(
+          "Welcome to VitaForge! Click the '+' button to create your first professional resume. Your data is saved locally and never shared."
+        );
+      }, 1500);
     }
   }, []);
 
-  // Save resumes when updated
+  // Update storage info when resumes change
   useEffect(() => {
-    localStorage.setItem("resumes", JSON.stringify(resumes));
+    setStorageInfo(StorageManager.getStorageInfo());
   }, [resumes]);
 
   // Auto-focus input in modal
@@ -36,46 +47,84 @@ const Dashboard = () => {
   const handleCreate = () => {
     const name = resumeName.trim();
     if (!name || name.length > 50) {
-      alert("Please enter a valid resume name (max 50 characters).");
+      NotificationManager.error(
+        "Please enter a valid resume name (max 50 characters).",
+        { duration: 4000 }
+      );
       return;
     }
 
     // Prevent duplicate names
     if (resumes.some((r) => r.name.toLowerCase() === name.toLowerCase())) {
-      alert("Resume name already exists!");
+      NotificationManager.warning(
+        "A resume with this name already exists! Please choose a different name.",
+        { duration: 4000 }
+      );
       return;
     }
 
-    const newResume = { id: uuidv4(), name };
-    const updatedResumes = [...resumes, newResume];
-    setResumes(updatedResumes);
+    // Check storage limit
+    if (!StorageManager.canCreateNewResume()) {
+      NotificationManager.storageLimit();
+      return;
+    }
 
-    const allResumesData = JSON.parse(localStorage.getItem("resumesData")) || {};
-    allResumesData[newResume.id] = {
-      personalInfo: {},
-      summary: [],
-      experiences: [],
-      education: [],
-      projects: [],
-      skills: [],
+    const newResume = { 
+      id: uuidv4(), 
+      name,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
-    localStorage.setItem("resumesData", JSON.stringify(allResumesData));
+    
+    // Show loading notification
+    const loadingToast = NotificationManager.loading("Creating your new resume...");
+    
+    setTimeout(() => {
+      const updatedResumes = [...resumes, newResume];
+      setResumes(updatedResumes);
 
-    setResumeName("");
-    setShowDialog(false);
+      // Use StorageManager to save data
+      StorageManager.saveResumesList(updatedResumes);
+      StorageManager.saveResumeData(newResume.id, {
+        personalInfo: {},
+        summary: "",
+        experiences: [],
+        education: [],
+        projects: [],
+        skills: [],
+        sectionTitles: {
+          summary: "PROFESSIONAL SUMMARY",
+          experience: "PROFESSIONAL EXPERIENCE", 
+          projects: "KEY PROJECTS",
+          education: "EDUCATION",
+          skills: "CORE COMPETENCIES"
+        }
+      });
 
-    navigate("/addresume", {
-      state: { resumeId: newResume.id, resumeName: newResume.name },
-    });
+      // Dismiss loading and show success
+      NotificationManager.dismissToast(loadingToast);
+      NotificationManager.resumeCreated(name);
+
+      setResumeName("");
+      setShowDialog(false);
+
+      navigate("/addresume", {
+        state: { resumeId: newResume.id, resumeName: newResume.name },
+      });
+    }, 1000); // Small delay to show loading state
   };
 
   const handleDelete = (id) => {
+    const resumeToDelete = resumes.find(r => r.id === id);
     const updatedList = resumes.filter((resume) => resume.id !== id);
     setResumes(updatedList);
 
-    const allResumesData = JSON.parse(localStorage.getItem("resumesData")) || {};
-    delete allResumesData[id];
-    localStorage.setItem("resumesData", JSON.stringify(allResumesData));
+    // Use StorageManager to delete resume
+    StorageManager.deleteResume(id);
+    StorageManager.saveResumesList(updatedList);
+    
+    // Show success notification
+    NotificationManager.resumeDeleted(resumeToDelete?.name || "Resume");
   };
 
   return (
@@ -89,20 +138,57 @@ const Dashboard = () => {
       >
         My Resumes
       </motion.h1>
-      <p className="text-gray-500 mt-2 mb-8">
+      <p className="text-gray-500 mt-2 mb-4">
         Create, preview, and manage your AI-powered resumes.
       </p>
+
+      {/* Storage Info */}
+      <div className="bg-white rounded-lg p-4 mb-6 shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between text-sm text-gray-600">
+          <span>Resumes: {storageInfo.currentCount} / {storageInfo.maxCount}</span>
+          <span>Storage: {storageInfo.sizeUsed} / {storageInfo.maxSize}</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+          <div 
+            className={`h-2 rounded-full transition-all ${
+              storageInfo.currentCount >= storageInfo.maxCount 
+                ? 'bg-red-500' 
+                : storageInfo.currentCount >= storageInfo.maxCount * 0.8
+                ? 'bg-yellow-500'
+                : 'bg-blue-500'
+            }`}
+            style={{ width: `${(storageInfo.currentCount / storageInfo.maxCount) * 100}%` }}
+          ></div>
+        </div>
+      </div>
 
       {/* Resume Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
         {/* Add Resume Card */}
         <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="w-full h-48 bg-gradient-to-br from-blue-200 via-purple-200 to-white rounded-2xl flex items-center justify-center text-6xl font-bold text-blue-600 cursor-pointer shadow-lg transition"
-          onClick={() => setShowDialog(true)}
+          whileHover={storageInfo.currentCount < storageInfo.maxCount ? { scale: 1.05 } : {}}
+          whileTap={storageInfo.currentCount < storageInfo.maxCount ? { scale: 0.95 } : {}}
+          className={`w-full h-48 rounded-2xl flex items-center justify-center text-6xl font-bold shadow-lg transition ${
+            storageInfo.currentCount >= storageInfo.maxCount
+              ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-gradient-to-br from-blue-200 via-purple-200 to-white text-blue-600 cursor-pointer hover:shadow-xl'
+          }`}
+          onClick={() => {
+            if (storageInfo.currentCount < storageInfo.maxCount) {
+              setShowDialog(true);
+            } else {
+              NotificationManager.storageLimit();
+            }
+          }}
         >
-          +
+          {storageInfo.currentCount >= storageInfo.maxCount ? (
+            <div className="text-center">
+              <div className="text-4xl mb-2">📝</div>
+              <div className="text-sm font-medium">Storage Full</div>
+            </div>
+          ) : (
+            '+'
+          )}
         </motion.div>
 
         {/* Resume Cards */}
@@ -188,6 +274,9 @@ const Dashboard = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Temporary: Cross-platform notification test - Remove after testing */}
+      <NotificationTest />
     </div>
   );
 };

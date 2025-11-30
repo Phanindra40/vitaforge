@@ -114,8 +114,20 @@ const Header = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.2 }}
+                className="flex items-center"
               >
-                <UserButton afterSignOutUrl="/" />
+                <UserButton 
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8 md:w-9 md:h-9",
+                      userButtonPopoverCard: "shadow-xl border-0 rounded-xl",
+                      userButtonPopoverActionButton: "text-sm font-medium hover:bg-gray-50",
+                      userButtonPopoverActionButtonText: "text-gray-700",
+                      userButtonPopoverFooter: "hidden"
+                    }
+                  }}
+                />
               </motion.div>
             ) : (
               <motion.button
@@ -180,7 +192,21 @@ const Header = () => {
                 )}
               </AnimatePresence>
 
-              {!isSignedIn && (
+              {isSignedIn ? (
+                <div className="flex justify-center pt-2">
+                  <UserButton 
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-10 h-10",
+                        userButtonPopoverCard: "shadow-xl border-0 rounded-xl",
+                        userButtonPopoverActionButton: "text-sm font-medium hover:bg-gray-50",
+                        userButtonPopoverActionButtonText: "text-gray-700"
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
                 <button
                   onClick={handleGetStarted}
                   className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-2 rounded-full font-semibold hover:from-purple-600 hover:to-indigo-700 transition shadow"

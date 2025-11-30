@@ -52,24 +52,24 @@ const Preview = React.forwardRef(
             {personalInfo.FullName || "YOUR NAME"}
           </h1>
           <div 
-            className="text-sm"
+            className="text-sm flex flex-wrap justify-center gap-x-3 gap-y-1"
             style={{ 
               fontSize: isMini ? "8px" : "11px",
               color: "#333333"
             }}
           >
             {personalInfo.Email && (
-              <span className="mr-3">
+              <span>
                 {personalInfo.Email}
               </span>
             )}
             {personalInfo.Phone && (
-              <span className="mr-3">
+              <span>
                 {personalInfo.Phone}
               </span>
             )}
             {personalInfo.LinkedIn && (
-              <span className="mr-3">
+              <span>
                 LinkedIn: {personalInfo.LinkedIn.replace(/https?:\/\/(www\.)?/, '')}
               </span>
             )}
@@ -78,6 +78,15 @@ const Preview = React.forwardRef(
                 GitHub: {personalInfo.GitHub.replace(/https?:\/\/(www\.)?/, '')}
               </span>
             )}
+            {personalInfo.customFields && personalInfo.customFields.length > 0 && 
+              personalInfo.customFields.map((field, index) => 
+                field.label && field.value ? (
+                  <span key={index}>
+                    {field.label}: {field.value}
+                  </span>
+                ) : null
+              )
+            }
           </div>
         </header>
 

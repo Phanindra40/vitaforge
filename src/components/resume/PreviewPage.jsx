@@ -9,7 +9,7 @@ const PreviewPage = () => {
 
   useEffect(() => {
     try {
-      const allResumes = JSON.parse(localStorage.getItem("resumeData") || "{}");
+      const allResumes = JSON.parse(localStorage.getItem("resumesData") || "{}");
       setData(allResumes[resumeId] || null);
     } catch (error) {
       console.error("Error loading resume data:", error);
