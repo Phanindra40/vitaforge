@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 
 const FIELDS = [
   {
@@ -34,7 +33,7 @@ const FIELDS = [
   },
 ];
 
-const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext, resumeId }) => {
+const PersonalInfoSection = ({ personalInfo, setPersonalInfo, onNext }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPersonalInfo((prev) => ({

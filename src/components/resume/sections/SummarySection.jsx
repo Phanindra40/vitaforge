@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { FaPenNib, FaRegFileAlt } from "react-icons/fa";
-import { motion } from "framer-motion";
 import api from "../../../api/axios"; // ✅ import your axios instance
 
 const SummarySection = ({
@@ -9,7 +8,6 @@ const SummarySection = ({
   loading: parentLoading,
   onNext,
   onBack,
-  resumeId,
 }) => {
   const [jdMode, setJdMode] = useState(false);
   const [jobDesc, setJobDesc] = useState("");

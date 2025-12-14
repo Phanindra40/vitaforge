@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import ErrorBoundary from "../ErrorBoundary";
-import { motion } from "framer-motion";
 
 const ExperienceSection = ({
   data,
@@ -10,7 +9,6 @@ const ExperienceSection = ({
   loading,
   onNext,
   onBack,
-  resumeId,
   sectionTitle,
   onSectionTitleChange,
 }) => {

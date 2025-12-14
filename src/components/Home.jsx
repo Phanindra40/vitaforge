@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
 import { motion } from "framer-motion";
 import { FaTwitter, FaLinkedin, FaGithub, FaEnvelope } from "react-icons/fa";
-import resumeMockup from "../assets/resume-mockup.png";
 import sampleResume from "../assets/sample resume.png";
 import homeimage from "../assets/newhome.png";
 

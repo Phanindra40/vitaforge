@@ -20,7 +20,7 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
   const stateData = location.state || {};
 
   const [resumeId, setResumeId] = useState(null);
-  const [resumeName, setResumeName] = useState(
+  const [resumeName] = useState(
     propResumeName || stateData.resumeName || "Untitled Resume"
   );
 
