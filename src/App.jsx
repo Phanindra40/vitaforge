@@ -130,7 +130,7 @@ const AppRoutes = () => (
 
 const App = () => {
   return (
-    <Router>
+    <Router basename="/vitaforge">
       <ClerkWithRouter />
       {/* Global Notification Container */}
       <NotificationContainer />
