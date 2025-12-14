@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { motion as _motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 const sectionVariant = {
   hidden: { opacity: 0, y: 20 },

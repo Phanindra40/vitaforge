@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion as _motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SkillsSection = ({ data, onChange, onSave, onBack, resumeId, sectionTitle, onSectionTitleChange }) => {
   const [skillsList, setSkillsList] = useState(data || []);
