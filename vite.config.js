@@ -15,5 +15,5 @@ export default defineConfig({
       ],
     },
   },
-  base: '/vitaforge/',
+  base: '/',
 });
