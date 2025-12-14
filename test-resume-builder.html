@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VitaForge Resume Builder Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .pass { color: green; } .fail { color: red; } .warning { color: orange; }
+        .test-results { margin: 10px 0; }
+        button { margin: 5px; padding: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>VitaForge Resume Builder - Comprehensive Test</h1>
+    <div id="test-results"></div>
+    
+    <script>
+        const testResults = document.getElementById('test-results');
+        
+        // Test localStorage availability and functionality
+        function testLocalStorage() {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = '<h3>localStorage Tests</h3>';
+            
+            const tests = [
+                {
+                    name: 'localStorage availability',
+                    test: () => typeof(Storage) !== "undefined"
+                },
+                {
+                    name: 'localStorage write/read',
+                    test: () => {
+                        localStorage.setItem('test', 'value');
+                        const result = localStorage.getItem('test') === 'value';
+                        localStorage.removeItem('test');
+                        return result;
+                    }
+                },
+                {
+                    name: 'localStorage JSON operations',
+                    test: () => {
+                        const testData = {test: 'data', array: [1,2,3]};
+                        localStorage.setItem('jsonTest', JSON.stringify(testData));
+                        const retrieved = JSON.parse(localStorage.getItem('jsonTest'));
+                        localStorage.removeItem('jsonTest');
+                        return JSON.stringify(retrieved) === JSON.stringify(testData);
+                    }
+                }
+            ];
+            
+            tests.forEach(test => {
+                try {
+                    const passed = test.test();
+                    section.innerHTML += `<div class="${passed ? 'pass' : 'fail'}">${test.name}: ${passed ? 'PASS' : 'FAIL'}</div>`;
+                } catch (e) {
+                    section.innerHTML += `<div class="fail">${test.name}: ERROR - ${e.message}</div>`;
+                }
+            });
+            
+            testResults.appendChild(section);
+        }
+        
+        // Test current localStorage data
+        function checkCurrentData() {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = '<h3>Current Data Check</h3>';
+            
+            try {
+                const resumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+                const resumesData = JSON.parse(localStorage.getItem('resumesData') || '{}');
+                
+                section.innerHTML += `<div>Resumes count: ${resumes.length}</div>`;
+                section.innerHTML += `<div>Resume data keys: ${Object.keys(resumesData).length}</div>`;
+                
+                if (resumes.length > 0) {
+                    section.innerHTML += '<div>Sample resume structure:</div>';
+                    section.innerHTML += `<pre>${JSON.stringify(resumes[0], null, 2)}</pre>`;
+                }
+                
+                if (Object.keys(resumesData).length > 0) {
+                    const firstKey = Object.keys(resumesData)[0];
+                    section.innerHTML += '<div>Sample resume data structure:</div>';
+                    section.innerHTML += `<pre>${JSON.stringify(resumesData[firstKey], null, 2)}</pre>`;
+                }
+                
+            } catch (e) {
+                section.innerHTML += `<div class="fail">Error reading data: ${e.message}</div>`;
+            }
+            
+            testResults.appendChild(section);
+        }
+        
+        // Test form validation patterns
+        function testValidation() {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = '<h3>Validation Tests</h3>';
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+            
+            const tests = [
+                {
+                    name: 'Email validation',
+                    test: () => emailRegex.test('test@example.com') && !emailRegex.test('invalid.email')
+                },
+                {
+                    name: 'Phone validation', 
+                    test: () => phoneRegex.test('1234567890') && phoneRegex.test('+1234567890')
+                }
+            ];
+            
+            tests.forEach(test => {
+                try {
+                    const passed = test.test();
+                    section.innerHTML += `<div class="${passed ? 'pass' : 'fail'}">${test.name}: ${passed ? 'PASS' : 'FAIL'}</div>`;
+                } catch (e) {
+                    section.innerHTML += `<div class="fail">${test.name}: ERROR - ${e.message}</div>`;
+                }
+            });
+            
+            testResults.appendChild(section);
+        }
+        
+        // Test browser capabilities for resume building
+        function testBrowserCapabilities() {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = '<h3>Browser Capabilities</h3>';
+            
+            const tests = [
+                {
+                    name: 'Print capability',
+                    test: () => typeof window.print === 'function'
+                },
+                {
+                    name: 'File download capability',
+                    test: () => typeof window.URL.createObjectURL === 'function'
+                },
+                {
+                    name: 'Canvas support (for PDF generation)',
+                    test: () => {
+                        const canvas = document.createElement('canvas');
+                        return !!(canvas.getContext && canvas.getContext('2d'));
+                    }
+                },
+                {
+                    name: 'CSS Grid support',
+                    test: () => CSS.supports('display', 'grid')
+                },
+                {
+                    name: 'CSS Flexbox support',
+                    test: () => CSS.supports('display', 'flex')
+                }
+            ];
+            
+            tests.forEach(test => {
+                try {
+                    const passed = test.test();
+                    section.innerHTML += `<div class="${passed ? 'pass' : 'warning'}">${test.name}: ${passed ? 'PASS' : 'LIMITED'}</div>`;
+                } catch (e) {
+                    section.innerHTML += `<div class="fail">${test.name}: ERROR - ${e.message}</div>`;
+                }
+            });
+            
+            testResults.appendChild(section);
+        }
+        
+        // Add control buttons
+        function addControls() {
+            const controls = document.createElement('div');
+            controls.className = 'test-section';
+            controls.innerHTML = '<h3>Test Controls</h3>';
+            
+            const clearBtn = document.createElement('button');
+            clearBtn.textContent = 'Clear All LocalStorage';
+            clearBtn.onclick = () => {
+                if (confirm('This will delete all resume data. Continue?')) {
+                    localStorage.clear();
+                    alert('LocalStorage cleared!');
+                    location.reload();
+                }
+            };
+            
+            const createTestDataBtn = document.createElement('button');
+            createTestDataBtn.textContent = 'Create Test Resume Data';
+            createTestDataBtn.onclick = createTestData;
+            
+            const checkAppBtn = document.createElement('button');
+            checkAppBtn.textContent = 'Open Resume Builder';
+            checkAppBtn.onclick = () => window.open('http://localhost:5174', '_blank');
+            
+            controls.appendChild(clearBtn);
+            controls.appendChild(createTestDataBtn);
+            controls.appendChild(checkAppBtn);
+            testResults.appendChild(controls);
+        }
+        
+        function createTestData() {
+            const testResume = {
+                id: 'test-' + Date.now(),
+                name: 'Test Resume',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            const testData = {
+                personalInfo: {
+                    FullName: "John Doe",
+                    Email: "john.doe@example.com",
+                    Phone: "+1234567890",
+                    GitHub: "https://github.com/johndoe",
+                    LinkedIn: "https://linkedin.com/in/johndoe",
+                    customFields: [
+                        {label: "Portfolio", value: "https://johndoe.dev"},
+                        {label: "Location", value: "New York, NY"}
+                    ]
+                },
+                summary: "Experienced software developer with 5+ years of expertise in full-stack development.",
+                experiences: [{
+                    role: "Senior Developer",
+                    company: "Tech Corp",
+                    startDate: "2022-01",
+                    endDate: "Present",
+                    technologiesUsed: "React, Node.js, MongoDB",
+                    description: "Led development of core platform features"
+                }],
+                education: [{
+                    degree: "Bachelor of Science",
+                    field: "Computer Science", 
+                    university: "Tech University",
+                    startDate: "2018",
+                    endDate: "2022",
+                    gpa: "3.8"
+                }],
+                projects: [{
+                    title: "E-commerce Platform",
+                    description: "Built full-stack e-commerce solution",
+                    technologiesUsed: "React, Express, PostgreSQL",
+                    link: "https://github.com/johndoe/ecommerce"
+                }],
+                skills: ["JavaScript", "React", "Node.js", "MongoDB", "Python"],
+                sectionTitles: {
+                    summary: "PROFESSIONAL SUMMARY",
+                    experience: "WORK EXPERIENCE",
+                    projects: "PROJECTS",
+                    education: "EDUCATION",
+                    skills: "TECHNICAL SKILLS"
+                }
+            };
+            
+            // Save test data
+            const resumes = JSON.parse(localStorage.getItem('resumes') || '[]');
+            resumes.push(testResume);
+            localStorage.setItem('resumes', JSON.stringify(resumes));
+            
+            const allData = JSON.parse(localStorage.getItem('resumesData') || '{}');
+            allData[testResume.id] = testData;
+            localStorage.setItem('resumesData', JSON.stringify(allData));
+            
+            alert('Test resume data created successfully!');
+            checkCurrentData();
+        }
+        
+        // Run all tests on page load
+        testLocalStorage();
+        testValidation();
+        testBrowserCapabilities();
+        checkCurrentData();
+        addControls();
+    </script>
+</body>
+</html>

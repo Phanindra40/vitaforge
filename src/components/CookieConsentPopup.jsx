@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as _motion, AnimatePresence } from 'framer-motion';
 import { CookieManager } from '../utils/cookies';
 import { NotificationManager } from '../utils/notifications';
 

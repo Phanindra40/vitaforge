@@ -2,7 +2,7 @@ import React from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
-import { motion } from "framer-motion";
+import { motion as _motion } from "framer-motion";
 import { FaTwitter, FaLinkedin, FaGithub, FaEnvelope } from "react-icons/fa";
 import sampleResume from "../assets/sample resume.png";
 import homeimage from "../assets/newhome.png";

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion as _motion } from "framer-motion";
 
 const EducationSection = ({ data, onChange, onNext, onSave, onBack, resumeId, sectionTitle, onSectionTitleChange }) => {
   const [educationList, setEducationList] = useState(data || []);
