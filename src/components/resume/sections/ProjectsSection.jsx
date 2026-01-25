@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import ErrorBoundary from "../ErrorBoundary";
 
@@ -30,7 +31,13 @@ const ProjectsSection = ({
   const addProject = () => {
     const updated = [
       ...data,
-      { name: "", description: "", technologies: "", duration: "" },
+      { 
+        name: "", 
+        description: "", 
+        technologies: "", 
+        startDate: "",
+        endDate: ""
+      },
     ];
     onUpdate(updated);
   };
@@ -83,12 +90,24 @@ const ProjectsSection = ({
               value={project.name}
               onChange={(e) => handleChange(index, "name", e.target.value)}
             />
-            <input
-              className="w-full px-4 py-2 border rounded-lg"
-              placeholder="Duration (e.g., Jan 2024 – May 2024)"
-              value={project.duration || ""}
-              onChange={(e) => handleChange(index, "duration", e.target.value)}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="month"
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-500"
+                placeholder="Start Date (MM/YYYY)"
+                value={project.startDate || ""}
+                onChange={(e) => handleChange(index, "startDate", e.target.value)}
+                title="Click to select start month and year"
+              />
+              <input
+                type="month"
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-500"
+                placeholder="End Date (MM/YYYY)"
+                value={project.endDate || ""}
+                onChange={(e) => handleChange(index, "endDate", e.target.value)}
+                title="Click to select end month and year"
+              />
+            </div>
             <input
               className="w-full px-4 py-2 border rounded-lg"
               placeholder="Technologies Used (comma-separated)"

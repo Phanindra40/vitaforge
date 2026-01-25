@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { FaPenNib, FaRegFileAlt } from "react-icons/fa";
 import api from "../../../api/axios"; // ✅ import your axios instance
 

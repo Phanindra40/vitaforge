@@ -15,6 +15,21 @@ import StorageManager from "../../utils/storage";
 import { NotificationManager } from "../../utils/notifications.jsx";
 import { CookieManager } from "../../utils/cookies";
 
+// Debounce utility for form saves
+const useDebounce = (callback, delay) => {
+  const timeoutRef = useRef(null);
+  
+  return useCallback(
+    (...args) => {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    },
+    [callback, delay]
+  );
+};
+
 const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
   const location = useLocation();
   const stateData = location.state || {};
@@ -50,6 +65,9 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Detect if device is mobile for performance optimization
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   // AI suggestion handler (placeholder for now since no backend)
   const handleGeminiSuggest = (type, index, data) => {
@@ -169,8 +187,8 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
     setIsLoading(false);
   }, [propResumeId, stateData.resumeId]);
 
-  // Save to localStorage using StorageManager
-  const saveResume = useCallback(
+  // Save to localStorage using StorageManager with debouncing
+  const saveFn = useCallback(
     (updatedFields = {}) => {
       if (!resumeId || isLoading) return;
       const currentData = {
@@ -188,7 +206,7 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
       const success = StorageManager.saveResumeData(resumeId, currentData);
       
       if (success && CookieManager.getPreferences().notifications.showSuccess) {
-        // Show subtle save confirmation
+        // Show subtle save confirmation only occasionally to reduce notification spam
         NotificationManager.success(
           "💾 Changes saved automatically",
           { duration: 2000 }
@@ -198,25 +216,35 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
     [resumeId, isLoading, personalInfo, summary, experiences, projects, education, skills, sectionTitles, resumeName]
   );
 
+  // Debounce the save function - waits 1.5s after user stops typing
+  const saveResume = useCallback(
+    (updatedFields = {}) => {
+      // Clear previous timeout if exists
+      if (window.saveTimeout) {
+        clearTimeout(window.saveTimeout);
+      }
+      // Set new timeout for debounced save
+      window.saveTimeout = setTimeout(() => {
+        saveFn(updatedFields);
+      }, 1500);
+    },
+    [saveFn]
+  );
+
   const nextStep = () => {
     const newStep = Math.min(step + 1, totalSteps);
     setStep(newStep);
     
     // Celebrate when reaching the final step
     if (newStep === totalSteps) {
-      // Show confetti
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 5000); // Stop after 5 seconds
+      // Show confetti only on desktop (better performance on mobile)
+      if (!isMobile) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
+      }
       
       setTimeout(() => {
         NotificationManager.resumeCompleted(resumeName);
-        
-        // Show tip about printing
-        setTimeout(() => {
-          NotificationManager.tipOfTheDay(
-            "Your resume is complete! Use the 'Print Resume' button to download or print your professional resume."
-          );
-        }, 2000);
       }, 500);
     }
   };
@@ -400,13 +428,33 @@ const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
                     </svg>
                     Try Download (Mobile)
                   </button>
+                  <button
+                    onClick={() => setStep(1)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 flex items-center justify-center gap-2 mt-3"
+                    title="Edit your resume"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit Resume
+                  </button>
                 </div>
               </div>
 
               {/* Desktop version */}
               <div className="hidden md:block">
-                {/* Download Button - Print as PDF (Most Reliable) */}
-                <div className="no-print flex justify-end mb-6">
+                {/* Download and Edit Buttons */}
+                <div className="no-print flex justify-between gap-4 mb-6">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition duration-300 flex items-center gap-2 text-lg"
+                    title="Edit your resume"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit Resume
+                  </button>
                   <button
                     onClick={handleBrowserPrint}
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition duration-300 flex items-center gap-2 text-lg"

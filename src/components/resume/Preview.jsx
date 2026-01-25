@@ -212,16 +212,28 @@ const Preview = React.forwardRef(
                       {proj.name || "Project Name"}
                     </h3>
                     <span 
+                      className="text-right font-medium"
+                      style={{ 
+                        fontSize: isMini ? "8px" : "11px",
+                        color: "#333333"
+                      }}
+                    >
+                      {proj.startDate} - {proj.endDate || "Present"}
+                    </span>
+                  </div>
+                  {proj.technologies && (
+                    <p 
                       className="text-right"
                       style={{ 
                         fontSize: isMini ? "8px" : "10px",
                         color: "#666666",
-                        fontStyle: "italic"
+                        fontStyle: "italic",
+                        marginBottom: "0.5rem"
                       }}
                     >
-                      {proj.technologies ? proj.technologies.split(',').map(tech => tech.trim()).join(' | ') : ''}
-                    </span>
-                  </div>
+                      {proj.technologies.split(',').map(tech => tech.trim()).join(' | ')}
+                    </p>
+                  )}
                   <p 
                     className="text-justify leading-relaxed"
                     style={{ 

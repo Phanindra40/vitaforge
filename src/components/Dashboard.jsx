@@ -21,14 +21,8 @@ const Dashboard = () => {
     setResumes(storedResumes);
     setStorageInfo(StorageManager.getStorageInfo());
 
-    // Show welcome tip for new users
-    if (storedResumes.length === 0 && CookieManager.hasConsent()) {
-      setTimeout(() => {
-        NotificationManager.tipOfTheDay(
-          "Welcome to VitaForge! Click the '+' button to create your first professional resume. Your data is saved locally and never shared."
-        );
-      }, 1500);
-    }
+    // Removed aggressive tip of the day - better UX
+    // Users can discover features naturally without popups
   }, []);
 
   // Update storage info when resumes change
@@ -126,24 +120,39 @@ const Dashboard = () => {
     NotificationManager.resumeDeleted(resumeToDelete?.name || "Resume");
   };
 
+  // Get resume preview data
+  const getResumePreview = (resumeId) => {
+    const data = StorageManager.getResumeData(resumeId);
+    if (!data) return null;
+    
+    return {
+      fullName: data.personalInfo?.FullName || "Name not added",
+      email: data.personalInfo?.Email || "",
+      experiences: data.experiences?.length || 0,
+      education: data.education?.length || 0,
+      skills: data.skills?.length || 0,
+      hasDescription: !!data.summary
+    };
+  };
+
   return (
-    <div className="p-8 min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100">
+    <div className="p-4 sm:p-6 md:p-8 min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100">
       {/* Header */}
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-500"
+        className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-500"
       >
         My Resumes
       </motion.h1>
-      <p className="text-gray-500 mt-2 mb-4">
+      <p className="text-xs sm:text-sm text-gray-500 mt-2 mb-4">
         Create, preview, and manage your AI-powered resumes.
       </p>
 
       {/* Storage Info */}
-      <div className="bg-white rounded-lg p-4 mb-6 shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between text-sm text-gray-600">
+      <div className="bg-white rounded-lg p-3 sm:p-4 mb-6 shadow-sm border border-gray-200">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm text-gray-600">
           <span>Resumes: {storageInfo.currentCount} / {storageInfo.maxCount}</span>
           <span>Storage: {storageInfo.sizeUsed} / {storageInfo.maxSize}</span>
         </div>
@@ -162,7 +171,7 @@ const Dashboard = () => {
       </div>
 
       {/* Resume Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-7">
         {/* Add Resume Card */}
         <motion.div
           whileHover={storageInfo.currentCount < storageInfo.maxCount ? { scale: 1.05 } : {}}
@@ -191,34 +200,99 @@ const Dashboard = () => {
         </motion.div>
 
         {/* Resume Cards */}
-        {resumes.map((resume, index) => (
+        {resumes.map((resume, index) => {
+          const preview = getResumePreview(resume.id);
+          
+          return (
           <motion.div
             key={resume.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="w-full h-48 bg-white/70 backdrop-blur-lg border border-purple-100 rounded-2xl shadow-md p-5 flex flex-col justify-between hover:shadow-xl transition"
+            className="w-full bg-white/70 backdrop-blur-lg border border-purple-100 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition flex flex-col"
           >
-            <h2 className="text-lg font-semibold text-indigo-800 truncate">
-              {resume.name}
-            </h2>
-            <div className="mt-auto flex gap-2">
+            {/* Preview Section */}
+            <div className="p-3 sm:p-4 md:p-5 bg-gradient-to-br from-indigo-50 to-purple-50 border-b border-purple-100 flex-1">
+              <h2 className="text-base sm:text-lg font-semibold text-indigo-800 truncate mb-2 sm:mb-3">
+                {resume.name}
+              </h2>
+              
+              {preview ? (
+                <div className="text-xs sm:text-sm space-y-1 sm:space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base sm:text-lg">👤</span>
+                    <p className="font-medium text-gray-700 truncate text-xs sm:text-sm">
+                      {preview.fullName}
+                    </p>
+                  </div>
+                  
+                  {preview.email && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-base sm:text-lg">📧</span>
+                      <p className="text-gray-600 truncate text-xs">
+                        {preview.email}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2 sm:gap-3 mt-2 sm:mt-3 pt-2 border-t border-purple-200">
+                    {preview.experiences > 0 && (
+                      <div className="text-center flex-1">
+                        <p className="text-lg sm:text-xl font-bold text-green-600">{preview.experiences}</p>
+                        <p className="text-xs text-gray-600">Exp{preview.experiences !== 1 ? 's' : ''}</p>
+                      </div>
+                    )}
+                    {preview.education > 0 && (
+                      <div className="text-center flex-1">
+                        <p className="text-lg sm:text-xl font-bold text-blue-600">{preview.education}</p>
+                        <p className="text-xs text-gray-600">Edu</p>
+                      </div>
+                    )}
+                    {preview.skills > 0 && (
+                      <div className="text-center flex-1">
+                        <p className="text-lg sm:text-xl font-bold text-purple-600">{preview.skills}</p>
+                        <p className="text-xs text-gray-600">Skill{preview.skills !== 1 ? 's' : ''}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-gray-500 py-4 sm:py-6 md:py-8">
+                  <p className="text-base sm:text-lg">📄</p>
+                  <p className="text-xs sm:text-sm">Empty resume</p>
+                  <p className="text-xs">Click Edit to add content</p>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="p-2 sm:p-3 md:p-4 flex gap-1 sm:gap-2">
+              <button
+                onClick={() => navigate(`/addresume`, {
+                  state: { resumeId: resume.id, resumeName: resume.name }
+                })}
+                aria-label={`Edit ${resume.name}`}
+                className="flex-1 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-blue-500 text-white rounded-full font-semibold shadow hover:bg-blue-600 transition"
+              >
+                Edit
+              </button>
               <button
                 onClick={() => navigate(`/preview/${resume.id}`)}
                 aria-label={`Preview ${resume.name}`}
-                className="px-4 py-1 text-sm bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full font-semibold shadow hover:from-indigo-600 hover:to-purple-600 transition"
+                className="flex-1 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full font-semibold shadow hover:from-indigo-600 hover:to-purple-600 transition"
               >
                 Preview
               </button>
               <button
                 onClick={() => handleDelete(resume.id)}
-                className="px-4 py-1 text-sm bg-red-500 text-white rounded-full font-semibold shadow hover:bg-red-600 transition"
+                className="flex-1 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-red-500 text-white rounded-full font-semibold shadow hover:bg-red-600 transition"
               >
                 Delete
               </button>
             </div>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
 
       {/* No Resumes Message */}

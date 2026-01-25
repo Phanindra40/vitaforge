@@ -65,9 +65,9 @@ const Header = () => {
               alt="VitaForge Logo"
               className="h-10 w-10 rounded-full border-2 border-purple-500 shadow-md"
             />
-            <div>
-              <h1 className="text-lg sm:text-xl font-extrabold font-mono tracking-tight bg-gradient-to-r from-purple-600 to-indigo-500 text-transparent bg-clip-text">
-                {typedText}
+            <div className="min-w-[140px]">
+              <h1 className="text-lg sm:text-xl font-extrabold font-mono tracking-tight bg-gradient-to-r from-purple-600 to-indigo-500 text-transparent bg-clip-text h-7 flex items-center">
+                {typedText || <span className="invisible">VitaForge</span>}
                 <span className="ml-1 w-[2px] h-5 bg-purple-500 inline-block animate-blink" />
               </h1>
               <p className="text-xs text-purple-500 italic">AI Resume Builder</p>
@@ -120,11 +120,14 @@ const Header = () => {
                   afterSignOutUrl="/"
                   appearance={{
                     elements: {
-                      avatarBox: "w-8 h-8 md:w-9 md:h-9",
-                      userButtonPopoverCard: "shadow-xl border-0 rounded-xl",
-                      userButtonPopoverActionButton: "text-sm font-medium hover:bg-gray-50",
+                      avatarBox: "w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 ring-2 ring-purple-300",
+                      userButtonPopoverCard: "shadow-2xl border-0 rounded-2xl bg-white/95 backdrop-blur-lg",
+                      userButtonPopoverActionButton: "text-xs sm:text-sm font-medium hover:bg-gray-50 rounded-lg transition",
                       userButtonPopoverActionButtonText: "text-gray-700",
-                      userButtonPopoverFooter: "hidden"
+                      userButtonPopoverActionButtonIcon: "w-4 h-4",
+                      userButtonPopoverFooter: "hidden",
+                      userPreviewMainIdentifier: "text-sm font-semibold text-gray-800",
+                      userPreviewSecondaryIdentifier: "text-xs text-gray-600"
                     }
                   }}
                 />
@@ -134,7 +137,7 @@ const Header = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleGetStarted}
-                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-1.5 text-sm rounded-full font-semibold hover:from-purple-600 hover:to-indigo-700 transition shadow"
+                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-full font-semibold hover:from-purple-600 hover:to-indigo-700 transition shadow hover:shadow-lg"
               >
                 Get Started 🚀
               </motion.button>

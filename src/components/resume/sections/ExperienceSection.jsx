@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import ErrorBoundary from "../ErrorBoundary";
 
@@ -98,16 +99,20 @@ const ExperienceSection = ({
                 onChange={(e) => handleChange(index, "company", e.target.value)}
               />
               <input
-                className="px-4 py-2 border rounded-lg"
-                placeholder="Start Date"
+                type="month"
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-500"
+                placeholder="Start Date (MM/YYYY)"
                 value={exp.startDate}
                 onChange={(e) => handleChange(index, "startDate", e.target.value)}
+                title="Click to select start month and year"
               />
               <input
-                className="px-4 py-2 border rounded-lg"
-                placeholder="End Date"
+                type="month"
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-500"
+                placeholder="End Date (MM/YYYY)"
                 value={exp.endDate}
                 onChange={(e) => handleChange(index, "endDate", e.target.value)}
+                title="Click to select end month and year"
               />
             </div>
 

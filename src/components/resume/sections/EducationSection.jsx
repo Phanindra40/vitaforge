@@ -99,18 +99,20 @@ const EducationSection = ({ data, onChange, onNext, onSave, onBack, resumeId, se
           />
           <div className="flex flex-col sm:flex-row gap-4">
             <input
-              type="text"
-              placeholder="Start Date"
+              type="month"
+              placeholder="Start Date (MM/YYYY)"
               value={edu.startDate}
               onChange={(e) => handleChange(index, "startDate", e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500"
+              title="Click to select start month and year"
             />
             <input
-              type="text"
-              placeholder="End Date"
+              type="month"
+              placeholder="End Date (MM/YYYY)"
               value={edu.endDate}
               onChange={(e) => handleChange(index, "endDate", e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500"
+              title="Click to select end month and year"
             />
           </div>
           <textarea

@@ -11,11 +11,26 @@ const CookieConsentPopup = () => {
     // Check if user has already made a choice
     const consentStatus = CookieManager.getConsentStatus();
     if (consentStatus === 'pending') {
-      // Show popup after a brief delay for better UX
+      // Only show on user interaction, not auto-popup
+      const handleUserInteraction = () => {
+        setIsVisible(true);
+        document.removeEventListener('click', handleUserInteraction);
+        document.removeEventListener('scroll', handleUserInteraction);
+      };
+      
+      // Show after 8 seconds if no interaction (less aggressive)
       const timer = setTimeout(() => {
         setIsVisible(true);
-      }, 2000);
-      return () => clearTimeout(timer);
+      }, 8000);
+      
+      document.addEventListener('click', handleUserInteraction);
+      document.addEventListener('scroll', handleUserInteraction);
+      
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener('click', handleUserInteraction);
+        document.removeEventListener('scroll', handleUserInteraction);
+      };
     }
   }, []);
 

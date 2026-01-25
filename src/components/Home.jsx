@@ -30,7 +30,7 @@ const HeroHeading = () => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.25 }}
-    className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6"
+    className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6"
   >
     Build Your Resume <br />
     <span className="animate-shine bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 bg-clip-text text-transparent">
@@ -83,19 +83,28 @@ const Home = () => {
   const handleBuildResume = () =>
     navigate(isSignedIn ? "/dashboard" : "/sign-in");
 
+  // Check for reduced motion preference and mobile
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.innerWidth < 768;
+  const shouldDisableAnimations = prefersReducedMotion || isMobile;
+
   return (
     <div className="relative overflow-hidden min-h-screen flex flex-col bg-gray-50">
-      {/* Glow Orbs */}
-      <motion.div
-        animate={{ opacity: [0.2, 0.35, 0.2] }}
-        transition={{ duration: 6, repeat: Infinity }}
-        className="absolute top-20 left-10 w-48 h-48 bg-blue-200 rounded-full blur-3xl opacity-30 -z-10"
-      />
-      <motion.div
-        animate={{ opacity: [0.2, 0.4, 0.2] }}
-        transition={{ duration: 8, repeat: Infinity }}
-        className="absolute bottom-20 right-20 w-40 h-40 bg-purple-200 rounded-full blur-3xl opacity-30 -z-10"
-      />
+      {/* Glow Orbs - disabled on mobile for performance */}
+      {!isMobile && (
+        <>
+          <motion.div
+            animate={shouldDisableAnimations ? {} : { opacity: [0.2, 0.35, 0.2] }}
+            transition={{ duration: 6, repeat: Infinity }}
+            className="absolute top-20 left-10 w-48 h-48 bg-blue-200 rounded-full blur-3xl opacity-30 -z-10"
+          />
+          <motion.div
+            animate={shouldDisableAnimations ? {} : { opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 8, repeat: Infinity }}
+            className="absolute bottom-20 right-20 w-40 h-40 bg-purple-200 rounded-full blur-3xl opacity-30 -z-10"
+          />
+        </>
+      )}
 
       {/* HERO SECTION */}
       <div className="flex-grow flex flex-col items-center justify-center px-4 text-center">
@@ -109,7 +118,7 @@ const Home = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-gray-700 text-lg sm:text-xl max-w-2xl mb-10"
+              className="text-gray-700 text-base sm:text-lg md:text-xl max-w-2xl mb-8 sm:mb-10"
             >
               Effortlessly craft job-winning resumes with our intelligent AI builder.
               <br className="hidden sm:block" />
