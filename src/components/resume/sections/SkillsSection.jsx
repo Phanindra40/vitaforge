@@ -8,7 +8,7 @@ const SkillsSection = ({ data, onChange, onSave, onBack, resumeId, sectionTitle,
 
   useEffect(() => {
     onChange(skillsList);
-  }, [skillsList]);
+  }, [skillsList, onChange]);
 
   useEffect(() => {
     if (onSectionTitleChange) {

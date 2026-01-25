@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CookieManager } from '../utils/cookies';
-import { NotificationManager } from '../utils/notifications';
+import NotificationManager from '../utils/notificationManager.jsx';
 
 const CookieConsentPopup = () => {
   const [isVisible, setIsVisible] = useState(false);

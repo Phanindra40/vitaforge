@@ -12,23 +12,10 @@ import SkillsSection from "./sections/SkillsSection";
 import Preview from "./Preview";
 import ErrorBoundary from "./ErrorBoundary";
 import StorageManager from "../../utils/storage";
-import { NotificationManager } from "../../utils/notifications.jsx";
+import { NotificationManager } from "../../utils/notificationManager.jsx";
 import { CookieManager } from "../../utils/cookies";
 
-// Debounce utility for form saves
-const useDebounce = (callback, delay) => {
-  const timeoutRef = useRef(null);
-  
-  return useCallback(
-    (...args) => {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        callback(...args);
-      }, delay);
-    },
-    [callback, delay]
-  );
-};
+
 
 const ResumeForm = ({ resumeId: propResumeId, resumeName: propResumeName }) => {
   const location = useLocation();

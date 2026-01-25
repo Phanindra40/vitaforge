@@ -7,7 +7,7 @@ const EducationSection = ({ data, onChange, onNext, onSave, onBack, resumeId, se
 
   useEffect(() => {
     onChange(educationList);
-  }, [educationList]);
+  }, [educationList, onChange]);
 
   useEffect(() => {
     if (onSectionTitleChange) {

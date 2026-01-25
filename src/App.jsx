@@ -11,13 +11,13 @@ import {
   ClerkProvider,
   SignedIn,
   SignedOut,
-  SignIn,
 } from '@clerk/clerk-react';
 
 import Header from './components/Header';
 import Home from './components/Home';
 import Features from './components/Features';
 import Dashboard from './components/Dashboard';
+import SignInPage from './auth/signin';
 import SignUpPage from './auth/SignUpPage';
 import AddResume from './components/resume/addresume';
 import ContactPage from './components/contact';
@@ -90,34 +90,10 @@ const AppRoutes = () => (
     {/* Preview Page */}
     <Route path="/preview/:resumeId" element={<PreviewPage />} />
 
-    {/* Clerk Sign In */}
+    {/* Custom Sign In */}
     <Route
-      path="/sign-in/*"
-      element={
-        <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
-          <div className="w-full max-w-md mx-auto">
-            <SignIn 
-              path="/sign-in" 
-              routing="path" 
-              signUpUrl="/sign-up"
-              appearance={{
-                elements: {
-                  rootBox: "w-full",
-                  card: "w-full shadow-xl border-0 rounded-2xl",
-                  headerTitle: "text-2xl font-bold text-gray-900",
-                  headerSubtitle: "text-gray-600",
-                  socialButtonsBlockButton: "w-full py-3 text-sm font-medium",
-                  formButtonPrimary: "w-full bg-purple-600 hover:bg-purple-700 py-3 text-sm font-semibold rounded-lg",
-                  footerActionLink: "text-purple-600 hover:text-purple-700 font-medium"
-                },
-                layout: {
-                  socialButtonsPlacement: "bottom"
-                }
-              }}
-            />
-          </div>
-        </div>
-      }
+      path="/sign-in"
+      element={<SignInPage />}
     />
 
     {/* Clerk Sign Up */}

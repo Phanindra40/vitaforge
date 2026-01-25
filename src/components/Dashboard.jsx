@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from 'framer-motion';
 import StorageManager from "../utils/storage";
-import { NotificationManager } from "../utils/notifications.jsx";
+import { NotificationManager } from "../utils/notificationManager.jsx";
 import { CookieManager } from "../utils/cookies";
 
 const Dashboard = () => {

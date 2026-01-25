@@ -1,5 +1,5 @@
 import React from 'react';
-import { NotificationManager } from '../utils/notifications';
+import { NotificationManager } from '../utils/notificationManager.jsx';
 
 // Test component to demonstrate cross-platform notifications
 const NotificationTest = () => {
